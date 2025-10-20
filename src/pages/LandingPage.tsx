@@ -19,7 +19,7 @@ const Landing = () => {
   const [, setIsHovered] = useState(false);
   const [activePreview, setActivePreview] = useState(DashboardPreview);
   const [selectedOption, setSelectedOption] = useState(0); // Default to "Overview" (index 0)
-  const [isPreviewInteracted, setIsPreviewInteracted] = useState(false);
+  const [, setIsPreviewInteracted] = useState(false);
   const [visibleWords, setVisibleWords] = useState(0);
   const [visibleSections, setVisibleSections] = useState({
     highlights: false,
