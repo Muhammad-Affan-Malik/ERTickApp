@@ -29,6 +29,7 @@ const Landing = () => {
   });
 
   // Refs for each section
+  //refs for each section used 
   const highlightsRef = useRef(null);
   const whoWeAreRef = useRef(null);
   const aboutRef = useRef(null);
@@ -39,7 +40,7 @@ const Landing = () => {
 
   useEffect(() => {
     let currentIndex = 0;
-    const revealSpeed = 200; // milliseconds per word - ADJUST THIS VALUE: Higher = slower, Lower = faster
+    const revealSpeed = 200; 
 
     const revealInterval = setInterval(() => {
       if (currentIndex <= words.length) {
@@ -278,7 +279,7 @@ const Landing = () => {
                                   ? 'border-orange-300 bg-orange-50' 
                                   : 'border-gray-200 bg-white hover:border-gray-300'
                               }`}>
-                                {/* Checkbox */}
+                                {}
                                 <div className="absolute top-0.5 left-0.5 w-2.5 h-2.5 border border-gray-300 rounded-sm bg-white flex items-center justify-center">
                                   {selectedOption === index && (
                                     <Check className="w-1.5 h-1.5 text-gray-800" strokeWidth={3} />
@@ -288,11 +289,12 @@ const Landing = () => {
                                 {/* Icon */}
                                 <div className="flex-1 flex items-center justify-center mt-0.5">
                                   <option.icon className={`w-3 h-3 transition-colors ${
-                                    selectedOption === index ? 'text-gray-800' : 'text-gray-600'
+                                    selectedOption === index ? 'text-gray-800' : 'text-gray-601'
                                   }`} />
                                 </div>
                                 
                                 {/* Label */}
+                                { /*test update */}
                                 <span className={`text-[10px] font-medium text-center leading-tight px-0.5 ${
                                   selectedOption === index ? 'text-gray-800' : 'text-gray-600'
                                 }`}>
