@@ -40,20 +40,50 @@ const Landing = () => {
   const words = fullText.split(' ');
 
   useEffect(() => {
-    let currentIndex = 0;
-    const revealSpeed = 200; 
+    const revealSpeedMs = 300;        // delay between each word reveal (slower)
+    const pauseAfterRevealMs = 2500;  // longer pause once full sentence is shown
+    const pauseAfterHideMs = 700;     // small pause after hide before next loop
 
-    const revealInterval = setInterval(() => {
-      if (currentIndex <= words.length) {
-        setVisibleWords(currentIndex);
-        currentIndex++;
-      } else {
-        clearInterval(revealInterval);
-      }
-    }, revealSpeed);
+    let cancelled = false;
+    const timers: number[] = [];
 
-    return () => clearInterval(revealInterval);
-  }, []);
+    const later = (fn: () => void, ms: number) => {
+      const id = window.setTimeout(fn, ms);
+      timers.push(id);
+    };
+
+    const runCycle = () => {
+      let currentIndex = 0;
+
+      const stepReveal = () => {
+        if (cancelled) return;
+        if (currentIndex <= words.length) {
+          setVisibleWords(currentIndex);
+          currentIndex++;
+          later(stepReveal, revealSpeedMs);
+        } else {
+          // full sentence visible → pause, then hide and restart
+          later(() => {
+            if (cancelled) return;
+            setVisibleWords(0);
+            later(() => {
+              if (cancelled) return;
+              runCycle();
+            }, pauseAfterHideMs);
+          }, pauseAfterRevealMs);
+        }
+      };
+
+      stepReveal();
+    };
+
+    runCycle();
+
+    return () => {
+      cancelled = true;
+      timers.forEach((id) => clearTimeout(id));
+    };
+  }, [words.length]);
 
   // Scroll observer for animations
   useEffect(() => {
@@ -172,12 +202,12 @@ const Landing = () => {
       </header>
 
       {/* Main Content Card */}
-      <section className="container mx-auto px-6 py-16 md:py-24">
+      <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24">
         <div className="max-w-6x6 mx-auto -mt-20">
           <Card className="bg-blue-50 rounded-[3rem] shadow-none">
-            <CardContent className="p-12 md:p-16">
+            <CardContent className="p-6 sm:p-8 md:p-12 lg:p-16">
               {/* Hero Section */}
-              <div className="text-center space-y-8 mb-16">
+              <div className="text-center space-y-6 sm:space-y-8 mb-12 sm:mb-16">
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-thin leading-tight min-h-[200px] flex items-center justify-center text-center" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 200 }}>
                   <span className="reveal-text">
                     {words.map((word, index) => (
@@ -185,7 +215,7 @@ const Landing = () => {
                         key={index}
                         className={`reveal-word ${index < visibleWords ? 'visible' : ''}`}
                         style={{ 
-                          transitionDelay: `${index * 0.1}s`,
+                          transitionDelay: `${index * 0.15}s`,
                           background: 'linear-gradient(to right, #1f2937, #1e40af, #1f2937)',
                           WebkitBackgroundClip: 'text',
                           WebkitTextFillColor: 'transparent',
@@ -240,12 +270,12 @@ const Landing = () => {
               </div>
 
               {/* Dashboard Preview - Mobile Responsive */}
-              <div className="max-w-5xl mx-auto mt-16">
-                <div className="rounded-2xl p-4 md:p-12">
+              <div className="max-w-5xl mx-auto mt-8 md:mt-16">
+                <div className="rounded-2xl p-2 sm:p-4 md:p-12">
                   {/* Mobile Layout - Stacked */}
                   <div className="block md:hidden space-y-6">
                     {/* Dashboard Preview Image */}
-                    <div className="w-full aspect-video rounded-xl border border-border/40 overflow-hidden">
+                    <div className="w-full h-64 sm:h-80 rounded-xl border border-border/40 overflow-hidden">
                       <img 
                         src={activePreview} 
                         alt="Dashboard Preview" 
@@ -255,7 +285,7 @@ const Landing = () => {
 
                     {/* Options Card - Full Width on Mobile */}
                     <div className="w-full bg-white shadow-2xl border border-gray-200 rounded-xl">
-                      <div className="p-4">
+                      <div className="p-3 sm:p-4">
                         <div className="mb-4">
                           <h3 className="text-lg font-semibold text-gray-800 text-center">What would you like to manage?</h3>
                         </div>
@@ -268,6 +298,11 @@ const Landing = () => {
                               onClick={() => {
                                 setSelectedOption(index);
                                 setIsPreviewInteracted(true);
+                                setActivePreview(option.image); // ensure preview updates on tap
+                              }}
+                              onTouchStart={() => {
+                                setActivePreview(option.image);
+                                setSelectedOption(index);
                               }}
                               onMouseEnter={() => {
                                 setActivePreview(option.image);
@@ -275,28 +310,26 @@ const Landing = () => {
                               }}
                               onMouseLeave={() => setIsHovered(false)}
                             >
-                              <div className={`aspect-square rounded-md border-2 flex flex-col items-center justify-center p-1 transition-all duration-200 ${
+                              <div className={`h-20 rounded-lg border-2 flex flex-col items-center justify-center p-1 transition-all duration-200 ${
                                 selectedOption === index 
                                   ? 'border-orange-300 bg-orange-50' 
                                   : 'border-gray-200 bg-white hover:border-gray-300'
                               }`}>
-                                {}
-                                <div className="absolute top-0.5 left-0.5 w-2.5 h-2.5 border border-gray-300 rounded-sm bg-white flex items-center justify-center">
+                                <div className="absolute top-1 left-1 w-3 h-3 border border-gray-300 rounded-sm bg-white flex items-center justify-center">
                                   {selectedOption === index && (
-                                    <Check className="w-1.5 h-1.5 text-gray-800" strokeWidth={3} />
+                                    <Check className="w-2 h-2 text-gray-800" strokeWidth={3} />
                                   )}
                                 </div>
                                 
                                 {/* Icon */}
-                                <div className="flex-1 flex items-center justify-center mt-0.5">
+                                <div className="flex-1 flex items-center justify-center mt-1">
                                   <option.icon className={`w-3 h-3 transition-colors ${
-                                    selectedOption === index ? 'text-gray-800' : 'text-gray-601'
+                                    selectedOption === index ? 'text-gray-800' : 'text-gray-600'
                                   }`} />
                                 </div>
                                 
                                 {/* Label */}
-                                { /*test update */}
-                                <span className={`text-[10px] font-medium text-center leading-tight px-0.5 ${
+                                <span className={`text-[10px] font-medium text-center leading-tight px-1 ${
                                   selectedOption === index ? 'text-gray-800' : 'text-gray-600'
                                 }`}>
                                   {option.title}
