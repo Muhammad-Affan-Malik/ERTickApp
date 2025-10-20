@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check } from "lucide-react";
+import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import "animate.css";
@@ -230,7 +230,7 @@ const Landing = () => {
                 </h1>
                 
                 <div className="text-xs sm:text-sm md:text-lg lg:text-xl text-gray-700 max-w-[280px] sm:max-w-sm md:max-w-2xl mx-auto px-2 sm:px-4 text-center leading-relaxed">
-                  <p className="md:whitespace-nowrap">
+                  <p className="md:whitespace-nowrap" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
                   Seamless Ticketing, Smarter Support
                   </p>
                 </div>
@@ -238,10 +238,10 @@ const Landing = () => {
                 <div className="pt-4">
                   <Link to="/login">
                     <Button
-                      className="bg-blue-600 hover:bg-blue-700 text-white py-6 px-8 text-base font-medium rounded-full inline-flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="group bg-blue-600 hover:bg-blue-700 text-white !py-6 !px-8 text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
                     >
                       Enter Dashboard
-                        <span className="ml-2 text-xl ml-[-2px]">→</span>
+                      <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                     </Button>
                   </Link>
                 </div>
@@ -439,7 +439,7 @@ const Landing = () => {
 
       {/* Who We Are Section */}
       <section className="container mx-auto px-6 py-16" ref={whoWeAreRef} data-section="whoWeAre">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto -mt-25">
           <Card className={`bg-gradient-to-br from-slate-50 to-gray-100 shadow-xl hover:shadow-2xl transition-all duration-500 rounded-[3rem] border-border/60 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`}>
             <CardContent className="p-8 md:p-12 space-y-6">
               <div className="text-center">
@@ -463,13 +463,6 @@ const Landing = () => {
                     assets to provide an enduring, positive impact.
                   </p>
                 </div>
-                
-                <div className={`flex justify-center mt-8 transition-all duration-1000 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-4'}`}>
-                  <div className="inline-flex items-center space-x-2 bg-white px-6 py-3 rounded-full shadow-md border border-gray-200">
-                    <div className="w-2 h-2 bg-slate-500 rounded-full animate__animated animate__pulse animate__infinite"></div>
-                    <span className="text-sm font-medium text-gray-700">Empowering Business Excellence</span>
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -478,8 +471,8 @@ const Landing = () => {
 
       {/* About Section */}
       <section className="container mx-auto px-6 py-16" ref={aboutRef} data-section="about">
-        <div className="max-w-6x6 mx-auto -mt-20">
-          <Card className={`border-border/60 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-xl hover:shadow-2xl transition-all duration-500 bg-blue-50 rounded-[3rem] shadow-none ${visibleSections.about ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`}>
+        <div className="max-w-6x6 mx-auto -mt-15 -mb-15">
+          <Card className={`border-border/60 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-xl hover:shadow-2xl transition-all duration-500 bg-blue-50 rounded-[3rem] ${visibleSections.about ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`}>
             <CardContent className="p-8 md:p-12 space-y-6">
               <div className="text-center">
                 <h2 className={`text-3xl md:text-4xl font-bold text-gray-800 mb-6 transition-all duration-1000 ${visibleSections.about ? 'animate__animated animate__fadeInDown' : 'opacity-0 translate-y-4'}`}>
@@ -521,12 +514,7 @@ const Landing = () => {
                 </div>
               </div>
               
-              <div className={`text-center mt-8 transition-all duration-1000 ${visibleSections.about ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-4'}`}>
-                <div className="inline-flex items-center space-x-2 bg-white px-6 py-3 rounded-full shadow-md">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate__animated animate__pulse animate__infinite"></div>
-                  <span className="text-sm font-medium text-gray-700">Streamlining Workforce Management</span>
-                </div>
-              </div>
+
             </CardContent>
           </Card>
         </div>
