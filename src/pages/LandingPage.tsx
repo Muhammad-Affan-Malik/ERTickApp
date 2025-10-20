@@ -30,6 +30,7 @@ const Landing = () => {
 
   // Refs for each section
   //refs for each section used 
+  //isPreview has been fixed
   const highlightsRef = useRef(null);
   const whoWeAreRef = useRef(null);
   const aboutRef = useRef(null);
