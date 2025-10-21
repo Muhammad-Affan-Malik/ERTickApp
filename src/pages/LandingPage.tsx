@@ -31,12 +31,32 @@ const Landing = () => {
     benefits: false,
   });
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isOpening, setIsOpening] = useState(false);
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{userId?: string; password?: string; general?: string}>({});
   const [successMessage, setSuccessMessage] = useState("");
   const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
+
+  // Function to handle open animation
+  const handleOpenModal = () => {
+    setShowLoginModal(true);
+    setIsOpening(true);
+    setTimeout(() => {
+      setIsOpening(false);
+    }, 800); // Match animation duration
+  };
+
+  // Function to handle close animation
+  const handleCloseModal = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowLoginModal(false);
+      setIsClosing(false);
+    }, 800); // Match animation duration
+  };
 
   // Refs for each section
   //refs for each section used 
@@ -409,7 +429,7 @@ const Landing = () => {
                   <Button
                     className="group text-white !py-6 !px-8 text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
                     style={{ backgroundColor: '#1e3a8a' }}
-                    onClick={() => setShowLoginModal(true)}
+                    onClick={handleOpenModal}
                   >
                     Enter Dashboard
                     <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -444,7 +464,6 @@ const Landing = () => {
                           <h3 className="text-lg font-semibold text-white group-hover:text-orange-400 transition-colors duration-300">
                             {highlight.title}
                           </h3>
-                          <div className="w-0 h-0.5 bg-gradient-to-r from-orange-400 to-white group-hover:w-full transition-all duration-500 rounded-full mt-1"></div>
                         </div>
                       </div>
                     ))}
@@ -483,7 +502,6 @@ const Landing = () => {
                             <h3 className="text-lg font-semibold text-white group-hover:text-orange-400 transition-colors duration-300">
                               {highlight.title}
                             </h3>
-                            <div className="w-full h-0.5 bg-gradient-to-r from-orange-400 to-white rounded-full mt-1"></div>
                           </div>
                         </div>
                       </div>
@@ -742,7 +760,6 @@ const Landing = () => {
               <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden bg-indigo-900 mt-[-15px] mb-[15px]">
                 <CardContent className="p-8 text-center space-y-4 flex flex-col h-full">
                   <h3 className="text-2xl md:text-3xl font-extrabold text-white">In-Depth Expertise</h3>
-                  <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto mb-2" />
                   <p className="text-indigo-100 text-sm leading-relaxed">
                     Our professionals are experienced veterans with rich expertise in a broad array of disciplines, including:
                   </p>
@@ -769,7 +786,6 @@ const Landing = () => {
               <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden bg-gradient-to-br from-yellow-300 to-yellow-500 mt-[-15px] mb-[15px]">
                 <CardContent className="p-8 text-center space-y-4 flex flex-col h-full">
                   <h3 className="text-2xl md:text-3xl font-extrabold text-gray-900">Customized Strategic Solutions</h3>
-                  <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto mb-2" />
                   <p className="text-gray-800 text-sm leading-relaxed">
                     We understand that every organization is different, and we don’t believe in a one-size-fits-all solution. Our consultants make a detailed analysis of your business, industry dynamics, and particular goals to create customized strategies that are exactly in sync with your challenges and objectives.
                   </p>
@@ -788,7 +804,6 @@ const Landing = () => {
               <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden bg-gradient-to-br from-orange-400 to-orange-500 mt-[-15px] mb-[15px]">
                 <CardContent className="p-8 text-center space-y-4 flex flex-col h-full">
                   <h3 className="text-2xl md:text-3xl font-extrabold text-white">Data-Driven Insights</h3>
-                  <div className="w-24 h-1 bg-gradient-to-r from-blue-200 to-indigo-300 mx-auto mb-2" />
                   <p className="text-orange-50 text-sm leading-relaxed">
                     With the help of advanced analytics, market insights, and new-age tools, we offer data-driven recommendations that transcend traditional consulting norms. Our methodology ensures that each strategy is highly informed, actionable, and results-oriented.
                   </p>
@@ -807,25 +822,24 @@ const Landing = () => {
 
       {/* Who We Are Section */}
       <section className="container mx-auto px-6 py-16" ref={whoWeAreRef} data-section="whoWeAre">
-        <div className="max-w-6xl mx-auto -mt-10">
-          <Card className={`bg-gradient-to-br from-slate-50 to-gray-100 shadow-xl hover:shadow-2xl transition-all duration-500 rounded-[3rem] border-border/60 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`}>
+        <div className="max-w-6xl mx-auto -mt-12 -mb-14">
+          <Card className={`shadow-xl hover:shadow-2xl transition-all duration-500 rounded-[3rem] border-0 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`} style={{ backgroundColor: '#0B132B' }}>
             <CardContent className="p-8 md:p-12 space-y-6">
               <div className="text-center">
-                <h2 className={`text-3xl md:text-4xl font-bold text-gray-800 mb-6 transition-all duration-1000 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInDown' : 'opacity-0 translate-y-4'}`}>
+                <h2 className={`text-3xl md:text-4xl font-bold text-white mb-6 transition-all duration-1000 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInDown' : 'opacity-0 translate-y-4'}`}>
                   Who We Are
                 </h2>
-                <div className={`w-24 h-1 bg-gradient-tox -r from-slate-500 to-gray-600 mx-auto mb-8 transition-all duration-1000 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInLeft' : 'opacity-0 translate-x-4'}`}></div>
               </div>
               
               <div className="max-w-4xl mx-auto">
                 <div className={`space-y-6 transition-all duration-1000 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-4'}`}>
-                  <p className="text-gray-700 leading-relaxed text-base md:text-lg text-center">
+                  <p className="text-white leading-relaxed text-base md:text-lg text-center">
                     ERManager Consulting Services is a renowned consulting company committed to enabling businesses with strategic solutions, 
                     advanced insights, and innovative methodologies. Composed of highly skilled professionals, we excel in leading organizations 
                     through intricate challenges, maximizing operational performance, and driving sustainable growth.
                   </p>
                   
-                  <p className="text-gray-700 leading-relaxed text-base md:text-lg text-center">
+                  <p className="text-white leading-relaxed text-base md:text-lg text-center">
                     Our purpose is to be a valued ally to companies desiring to reach their full potential. We understand that each organization 
                     has unique strengths and possibilities, and we are dedicated to assisting our customers in uncovering and capitalizing on these 
                     assets to provide an enduring, positive impact.
@@ -853,7 +867,6 @@ const Landing = () => {
             <div className={`relative overflow-visible md:col-span-2 ${visibleSections.benefits ? 'animate__animated animate__fadeInUp' : ''}`} style={{ animationDelay: visibleSections.benefits ? '0.15s' : undefined }}>
               <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden bg-gradient-to-br from-yellow-300 to-yellow-500">
                 <CardContent className="p-10 text-center space-y-4 flex flex-col h-full">
-                  <div className="w-28 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto mb-2" />
                   <p className="text-gray-900/90 text-base leading-relaxed max-w-3xl mx-auto">Unlock operational efficiency with our structured ERManager ERP implementation and support services. We follow a phase-wise approach from analysis to go-live.. Our dedicated support team ensures your system runs smoothly with continuous maintenance, troubleshooting, and enhancements tailored to your evolving business needs..</p>
                   <div className="flex-1" />
                   <div className="mt-4">
@@ -875,7 +888,6 @@ const Landing = () => {
             <div className={`relative overflow-visible md:col-span-2 ${visibleSections.benefits ? 'animate__animated animate__fadeInUp' : ''}`} style={{ animationDelay: visibleSections.benefits ? '0.35s' : undefined }}>
               <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden bg-indigo-900">
                 <CardContent className="p-10 text-center space-y-4 flex flex-col h-full">
-                  <div className="w-28 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto mb-2" />
                   <p className="text-indigo-100 text-base leading-relaxed max-w-3xl mx-auto">ERTickAPP streamlines ticketing and event management. Our powerful solution automates tickets and is tailored to simplify customer issue management with the help of SAP S4HANA, SAP B-ONE, and ERMANAGER.</p>
                   <div className="flex-1" />
                   <div className="mt-4">
@@ -1025,8 +1037,14 @@ const Landing = () => {
       {/* Simple Login Form */}
       {showLoginModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="bg-black/50 absolute inset-0" onClick={() => setShowLoginModal(false)}></div>
-          <div className="relative z-10 w-full max-w-sm">
+          <div className="bg-black/50 absolute inset-0" onClick={handleCloseModal}></div>
+          <div className={`relative z-10 w-full max-w-sm ${
+            isOpening 
+              ? 'animate__animated animate__backInLeft animate__fast' 
+              : isClosing 
+                ? 'animate__animated animate__backOutRight animate__fast' 
+                : ''
+          }`}>
             <Card className="p-6 shadow-2xl border border-gray-200 bg-white">
               {/* Header */}
               <div className="text-center mb-6">
@@ -1178,7 +1196,7 @@ const Landing = () => {
 
               {/* Close Button */}
               <button
-                onClick={() => setShowLoginModal(false)}
+                onClick={handleCloseModal}
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
