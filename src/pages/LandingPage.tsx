@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight, User, Lock, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import "animate.css";
@@ -29,6 +30,12 @@ const Landing = () => {
     features: false,
     benefits: false,
   });
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<{userId?: string; password?: string; general?: string}>({});
+  const [successMessage, setSuccessMessage] = useState("");
   const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
 
   // Refs for each section
@@ -43,6 +50,133 @@ const Landing = () => {
   
   const fullText = "One Work Platform To Manage Attendance & Tasks Effortlessly";
   const words = fullText.split(' ');
+
+  // Clear form functionality
+  const clearForm = () => {
+    setUserId("");
+    setPassword("");
+    setErrors({});
+    setSuccessMessage("");
+  };
+
+  // Validation function (same as LoginPage)
+  const validateForm = () => {
+    const newErrors: {userId?: string; password?: string; general?: string} = {};
+
+    // User ID validation (can be email or username)
+    if (!userId.trim()) {
+      newErrors.userId = "User ID or Email is required";
+    } else if (userId.trim().length < 3) {
+      newErrors.userId = "User ID must be at least 3 characters";
+    } else {
+      // Check if it's an email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const usernameRegex = /^[a-zA-Z0-9_]+$/;
+      
+      if (emailRegex.test(userId.trim())) {
+        // It's an email - validate email format
+        if (userId.trim().length > 254) {
+          newErrors.userId = "Email is too long";
+        }
+      } else {
+        // It's a username - validate username format
+        if (!usernameRegex.test(userId.trim())) {
+          newErrors.userId = "Username can only contain letters, numbers, and underscores";
+        } else if (userId.trim().length > 20) {
+          newErrors.userId = "Username must be less than 20 characters";
+        }
+      }
+    }
+
+    // Password validation
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    } else if (password.length > 128) {
+      newErrors.password = "Password is too long";
+    } else {
+      // Check password complexity
+      const hasUpperCase = /[A-Z]/.test(password);
+      const hasLowerCase = /[a-z]/.test(password);
+      const hasNumbers = /\d/.test(password);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      
+      let complexityErrors = [];
+      if (!hasUpperCase) complexityErrors.push("one uppercase letter");
+      if (!hasLowerCase) complexityErrors.push("one lowercase letter");
+      if (!hasNumbers) complexityErrors.push("one number");
+      if (!hasSpecialChar) complexityErrors.push("one special character");
+      
+      if (complexityErrors.length > 0) {
+        newErrors.password = `Password must contain at least ${complexityErrors.join(", ")}`;
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Login form handler (same as LoginPage)
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Clear previous messages
+    setErrors({});
+    setSuccessMessage("");
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Simulate API call with error handling
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // Simulate different scenarios
+          const random = Math.random();
+          
+          if (random < 0.7) {
+            // Success case
+            resolve("Login successful");
+          } else if (random < 0.9) {
+            // Network error
+            reject(new Error("Network error. Please check your connection."));
+          } else {
+            // Invalid credentials
+            reject(new Error("Invalid User ID or Password"));
+          }
+        }, 1500);
+      });
+
+      // Success
+      setSuccessMessage("Login successful! Redirecting...");
+      setTimeout(() => {
+        // In real app, redirect to dashboard
+        setShowLoginModal(false);
+        clearForm();
+      }, 2000);
+
+    } catch (error) {
+      // Handle errors
+      if (error instanceof Error) {
+        if (error.message.includes("Network")) {
+          setErrors({ general: "Network error. Please check your internet connection and try again." });
+        } else if (error.message.includes("Invalid")) {
+          setErrors({ general: "Invalid User ID or Password. Please try again." });
+        } else {
+          setErrors({ general: "An unexpected error occurred. Please try again." });
+        }
+      } else {
+        setErrors({ general: "An unexpected error occurred. Please try again." });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const revealSpeedMs = 300;        // delay between each word reveal (slower)
@@ -221,14 +355,15 @@ const Landing = () => {
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/95 sticky top-0 z-50">
-        <nav className="container mx-auto px-6 py-2 flex justify-center items-center">
-          <div className="flex items-center gap-4">
-            <img 
-              src={ERManagerLogo} 
-              alt="ERManager Consulting Services" 
-              className="h-13 w-auto object-contain"
-            />
-
+        <nav className="container mx-auto px-6 py-2 flex justify-start items-center">
+          <div className="flex items-center gap-4 ml-7">
+            <Link to="/" className="cursor-pointer hover:opacity-80 transition-opacity duration-200">
+              <img 
+                src={ERManagerLogo} 
+                alt="ERManager Consulting Services" 
+                className="h-10 w-auto object-contain"
+              />
+            </Link>
           </div>
         </nav>
       </header>
@@ -271,15 +406,14 @@ const Landing = () => {
                 </div>
 
                 <div className="pt-4">
-                  <Link to="/login">
-                    <Button
-                      className="group text-white !py-6 !px-8 text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
-                      style={{ backgroundColor: '#1e3a8a' }}
-                    >
-                      Enter Dashboard
-                      <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-                    </Button>
-                  </Link>
+                  <Button
+                    className="group text-white !py-6 !px-8 text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                    style={{ backgroundColor: '#1e3a8a' }}
+                    onClick={() => setShowLoginModal(true)}
+                  >
+                    Enter Dashboard
+                    <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Button>
                 </div>
 
 
@@ -887,6 +1021,174 @@ const Landing = () => {
           </Card>
         </div>
       </footer>
+
+      {/* Simple Login Form */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="bg-black/50 absolute inset-0" onClick={() => setShowLoginModal(false)}></div>
+          <div className="relative z-10 w-full max-w-sm">
+            <Card className="p-6 shadow-2xl border border-gray-200 bg-white">
+              {/* Header */}
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Welcome Back!</h3>
+                <p className="text-gray-600 text-xs text-center">Use your employee ID and password to sign in</p>
+              </div>
+
+              {/* Success Message */}
+              {successMessage && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md flex items-center space-x-2">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <p className="text-green-800 text-sm">{successMessage}</p>
+                </div>
+              )}
+
+              {/* General Error Message */}
+              {errors.general && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-center space-x-2">
+                  <AlertCircle className="h-5 w-5 text-red-600" />
+                  <p className="text-red-800 text-sm">{errors.general}</p>
+                </div>
+              )}
+
+              {/* Login Form */}
+              <form onSubmit={handleLoginSubmit} className="space-y-6">
+                {/* User ID Field */}
+                <div className="max-w-xs mx-auto">
+                  <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
+                    User Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="userId"
+                      type="text"
+                      placeholder="Enter your username"
+                      value={userId}
+                      onChange={(e) => {
+                        setUserId(e.target.value);
+                        if (errors.userId) {
+                          setErrors(prev => ({ ...prev, userId: undefined }));
+                        }
+                      }}
+                      className={`pl-10 py-3 rounded-md ${
+                        errors.userId 
+                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
+                          : 'border-gray-300'
+                      }`}
+                      style={{
+                        outline: 'none',
+                        boxShadow: 'none'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.userId) {
+                          e.target.style.borderColor = '#60a5fa';
+                          e.target.style.boxShadow = '0 0 0 4px rgba(96, 165, 250, 0.3)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!errors.userId) {
+                          e.target.style.borderColor = '#d1d5db';
+                          e.target.style.boxShadow = 'none';
+                        }
+                      }}
+                    />
+                  </div>
+                  {errors.userId && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-1" />
+                      {errors.userId}
+                    </p>
+                  )}
+                </div>
+
+                {/* Password Field */}
+                <div className="max-w-xs mx-auto">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (errors.password) {
+                          setErrors(prev => ({ ...prev, password: undefined }));
+                        }
+                      }}
+                      className={`pl-10 py-3 rounded-md ${
+                        errors.password 
+                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
+                          : 'border-gray-300'
+                      }`}
+                      style={{
+                        outline: 'none',
+                        boxShadow: 'none'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.password) {
+                          e.target.style.borderColor = '#60a5fa';
+                          e.target.style.boxShadow = '0 0 0 4px rgba(96, 165, 250, 0.3)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!errors.password) {
+                          e.target.style.borderColor = '#d1d5db';
+                          e.target.style.boxShadow = 'none';
+                        }
+                      }}
+                    />
+                  </div>
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-1" />
+                      {errors.password}
+                    </p>
+                  )}
+                </div>
+
+                {/* Sign In Button */}
+                <div className="flex justify-center">
+                  <Button
+                    type="submit"
+                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-4 px-12 text-base font-medium rounded-full inline-flex items-center justify-center"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Signing In...
+                      </div>
+                    ) : (
+                      "Sign In"
+                    )}
+                  </Button>
+                </div>
+              </form>
+
+              {/* Help Text */}
+              <div className="mt-4">
+                <p className="text-center text-gray-500 text-xs">
+                  Contact your administrator if you need access or have forgotten your credentials
+                </p>
+              </div>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </Card>
+          </div>
+        </div>
+      )}
     </div>
     </>
   );
