@@ -29,6 +29,7 @@ const Landing = () => {
     features: false,
     benefits: false,
   });
+  const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
 
   // Refs for each section
   //refs for each section used 
@@ -103,6 +104,15 @@ const Landing = () => {
       return () => clearInterval(slideInterval);
     }
   }, [isPreviewInteracted]);
+
+  // Auto-rotate highlights for mobile
+  useEffect(() => {
+    const highlightInterval = setInterval(() => {
+      setActiveHighlightIndex((prev) => (prev + 1) % highlights.length);
+    }, 3000); // Change highlight every 3 seconds
+
+    return () => clearInterval(highlightInterval);
+  }, []);
 
   // Scroll observer for animations
   useEffect(() => {
@@ -201,6 +211,7 @@ const Landing = () => {
   ];
 
   return (
+    
     <>
       {/* Google Fonts Import */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -230,15 +241,12 @@ const Landing = () => {
         <div className="absolute bottom-40 left-1/4 w-24 h-24 bg-purple-400/10 rounded-full blur-xl animate__animated animate__pulse animate__infinite" style={{ animationDelay: '2s' }}></div>
         
         <div className="max-w-6x6 mx-auto -mt-20 relative z-10">
-          <Card className="bg-blue-50 rounded-[3rem] shadow-none relative overflow-hidden">
-            {/* Decorative gradient background */}
-            <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-bl from-blue-200/30 to-transparent rounded-[3rem]"></div>
-            <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-indigo-200/30 to-transparent rounded-[3rem]"></div>
+          <Card className="rounded-[3rem] shadow-none relative overflow-hidden" style={{ backgroundColor: '#0B132B' }}>
             
             <CardContent className="p-6 sm:p-8 md:p-12 lg:p-16 relative z-10">
               {/* Hero Section */}
               <div className="text-center space-y-6 sm:space-y-8 mb-12 sm:mb-16">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-thin leading-tight min-h-[200px] flex items-center justify-center text-center" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 200 }}>
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-normal leading-tight min-h-[200px] flex items-center justify-center text-center text-white" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 400 }}>
                   <span className="reveal-text">
                     {words.map((word, index) => (
                       <span
@@ -246,10 +254,7 @@ const Landing = () => {
                         className={`reveal-word ${index < visibleWords ? 'visible' : ''}`}
                         style={{ 
                           transitionDelay: `${index * 0.15}s`,
-                          background: 'linear-gradient(to right, #1f2937, #1e40af, #1f2937)',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          backgroundClip: 'text'
+                          color: 'white'
                         }}
                       >
                         {word}
@@ -259,7 +264,7 @@ const Landing = () => {
                   </span>
                 </h1>
                 
-                <div className="text-xs sm:text-sm md:text-lg lg:text-xl text-gray-700 max-w-[280px] sm:max-w-sm md:max-w-2xl mx-auto px-2 sm:px-4 text-center leading-relaxed">
+                <div className="text-xs sm:text-sm md:text-lg lg:text-xl text-white max-w-[280px] sm:max-w-sm md:max-w-2xl mx-auto px-2 sm:px-4 text-center leading-relaxed">
                   <p className="md:whitespace-nowrap" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
                   Seamless Ticketing, Smarter Support
                   </p>
@@ -268,7 +273,8 @@ const Landing = () => {
                 <div className="pt-4">
                   <Link to="/login">
                     <Button
-                      className="group bg-blue-600 hover:bg-blue-700 text-white !py-6 !px-8 text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="group text-white !py-6 !px-8 text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                      style={{ backgroundColor: '#1e3a8a' }}
                     >
                       Enter Dashboard
                       <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -280,22 +286,75 @@ const Landing = () => {
               </div>
 
               {/* System Highlights */}
-              <div className="max-w-4xl mx-auto" ref={highlightsRef} data-section="highlights">
-                <div className={`grid md:grid-cols-3 gap-6 transition-all duration-1000 ${visibleSections.highlights ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  {highlights.map((highlight, index) => (
-                    <Card 
-                      key={highlight.title} 
-                      className={`bg-white border-blue-200 hover:shadow-lg transition-all duration-300 group hover:scale-105 ${visibleSections.highlights ? 'animate__animated animate__fadeInUp' : ''}`}
-                      style={{ animationDelay: `${index * 0.2}s` }}
-                    >
-                      <CardContent className="p-6 flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-                          <highlight.icon className="w-6 h-6 text-blue-600" />
+              <div className="max-w-5xl mx-auto" ref={highlightsRef} data-section="highlights">
+                <div className={`transition-all duration-1000 ${visibleSections.highlights ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ backgroundColor: '#0B132B', padding: '2rem', borderRadius: '1.5rem' }}>
+                  {/* Desktop: Elegant horizontal layout */}
+                  <div className="hidden md:flex md:flex-row items-center justify-center gap-8 md:gap-12">
+                    {highlights.map((highlight, index) => (
+                      <div
+                        key={highlight.title}
+                        className={`group flex items-center gap-4 cursor-pointer transition-all duration-500 hover:scale-105 ${visibleSections.highlights ? 'animate__animated animate__fadeInUp' : ''}`}
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        {/* Icon with subtle styling */}
+                        <div className="relative">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-110">
+                            <highlight.icon className="w-6 h-6 text-white transition-transform duration-300 group-hover:rotate-12" />
+                          </div>
+                          {/* Subtle glow effect */}
+                          <div className="absolute inset-0 rounded-xl bg-blue-400 opacity-0 group-hover:opacity-20 blur-sm transition-opacity duration-300"></div>
                         </div>
-                        <h3 className="text-base font-semibold text-gray-800">{highlight.title}</h3>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        
+                        {/* Text content */}
+                        <div className="flex flex-col">
+                          <h3 className="text-lg font-semibold text-white group-hover:text-orange-400 transition-colors duration-300">
+                            {highlight.title}
+                          </h3>
+                          <div className="w-0 h-0.5 bg-gradient-to-r from-orange-400 to-white group-hover:w-full transition-all duration-500 rounded-full mt-1"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Mobile: Compact carousel-like single highlight display */}
+                  <div className="md:hidden flex flex-col items-center justify-center min-h-[80px] relative">
+                    {highlights.map((highlight, index) => (
+                      <div
+                        key={highlight.title}
+                        className={`absolute inset-0 flex items-center justify-center transition-all duration-1000 ease-in-out ${
+                          index === activeHighlightIndex
+                            ? 'opacity-100 translate-y-0 scale-100 z-10'
+                            : index === (activeHighlightIndex + 1) % highlights.length
+                            ? 'opacity-0 translate-y-8 scale-95 z-0'
+                            : 'opacity-0 translate-y-8 scale-95 z-0'
+                        }`}
+                        style={{
+                          transform: index === activeHighlightIndex 
+                            ? 'translateY(0) scale(1)' 
+                            : 'translateY(20px) scale(0.95)'
+                        }}
+                      >
+                        <div className="group flex items-center gap-3 cursor-pointer">
+                          {/* Compact icon */}
+                          <div className="relative">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110">
+                              <highlight.icon className="w-5 h-5 text-white transition-transform duration-300 group-hover:rotate-12" />
+                            </div>
+                            {/* Subtle glow effect */}
+                            <div className="absolute inset-0 rounded-lg bg-blue-400 opacity-10 blur-sm transition-opacity duration-300"></div>
+                          </div>
+                          
+                          {/* Compact text content */}
+                          <div className="flex flex-col">
+                            <h3 className="text-lg font-semibold text-white group-hover:text-orange-400 transition-colors duration-300">
+                              {highlight.title}
+                            </h3>
+                            <div className="w-full h-0.5 bg-gradient-to-r from-orange-400 to-white rounded-full mt-1"></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -306,13 +365,13 @@ const Landing = () => {
                   <div className="block md:hidden space-y-6">
                     {/* Dashboard Preview Image with Slide Indicator */}
                     <div className="relative">
-                      <div className="w-full h-64 sm:h-80 rounded-xl border border-border/40 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg">
+                      <div className="w-full h-64 sm:h-80 rounded-xl overflow-hidden" style={{ backgroundColor: '#0B132B' }}>
                       <img 
                           key={activePreview}
                         src={activePreview} 
                         alt="Dashboard Preview" 
-                          className="w-full h-full object-contain rounded-xl transition-all duration-700 ease-in-out animate__animated animate__fadeIn"
-                        />
+                          className="w-full h-full object-contain rounded-xl transition-all duration-700 ease-in-out animate__animated animate__fadeIn opacity-0"
+                      />
                       </div>
                       
                       {/* Slide Indicators */}
@@ -364,9 +423,20 @@ const Landing = () => {
                             >
                               <div className={`h-20 rounded-lg border-2 flex flex-col items-center justify-center p-1 transition-all duration-200 ${
                                 selectedOption === index 
-                                  ? 'border-orange-300 bg-orange-50' 
+                                  ? 'bg-white' 
                                   : 'border-gray-200 bg-white hover:border-gray-300'
-                              }`}>
+                              }`} style={{
+                                borderColor: selectedOption === index ? '#1e3a8a' : undefined,
+                                boxShadow: selectedOption === index ? '0 4px 6px -1px rgba(30, 58, 138, 0.1), 0 2px 4px -1px rgba(30, 58, 138, 0.06)' : undefined
+                              }} onMouseEnter={(e) => {
+                                if (selectedOption !== index) {
+                                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(30, 58, 138, 0.1), 0 2px 4px -1px rgba(30, 58, 138, 0.06)';
+                                }
+                              }} onMouseLeave={(e) => {
+                                if (selectedOption !== index) {
+                                  e.currentTarget.style.boxShadow = '';
+                                }
+                              }}>
                                 <div className="absolute top-1 left-1 w-3 h-3 border border-gray-300 rounded-sm bg-white flex items-center justify-center">
                                   {selectedOption === index && (
                                     <Check className="w-2 h-2 text-gray-800" strokeWidth={3} />
@@ -394,7 +464,8 @@ const Landing = () => {
                         <div className="text-center">
                           <Link to="/login">
                             <Button 
-                              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200 w-full"
+                              className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200 w-full"
+                              style={{ backgroundColor: '#1e3a8a' }}
                               onClick={() => setIsPreviewInteracted(true)}
                             >
                               Get Started
@@ -409,12 +480,12 @@ const Landing = () => {
                   {/* Desktop Layout - Side by Side */}
                   <div className="hidden md:block">
                     <div className="relative">
-                      <div className="w-full aspect-video rounded-xl border border-border/40 flex items-center justify-center relative overflow-visible bg-gradient-to-br from-blue-50 to-indigo-50 shadow-2xl">
+                      <div className="w-full aspect-video rounded-xl flex items-center justify-center relative overflow-visible" style={{ backgroundColor: '#0B132B' }}>
                       <img 
                           key={activePreview}
                         src={activePreview} 
                         alt="Dashboard Preview" 
-                          className="w-full h-full object-contain rounded-xl transition-all duration-700 ease-in-out translate-x-[-100px] animate__animated animate__fadeIn"
+                          className="w-full h-full object-contain rounded-xl transition-all duration-700 ease-in-out animate__animated animate__fadeIn opacity-0"
                       />
                         
                         {/* Decorative gradient overlay */}
@@ -444,9 +515,20 @@ const Landing = () => {
                               >
                                 <div className={`aspect-square rounded-md border-2 flex flex-col items-center justify-center p-2 transition-all duration-200 ${
                                   selectedOption === index 
-                                    ? 'border-orange-300 bg-orange-50' 
+                                    ? 'bg-white' 
                                     : 'border-gray-200 bg-white hover:border-gray-300'
-                                }`}>
+                                }`} style={{
+                                  borderColor: selectedOption === index ? '#1e3a8a' : undefined,
+                                  boxShadow: selectedOption === index ? '0 4px 6px -1px rgba(30, 58, 138, 0.1), 0 2px 4px -1px rgba(30, 58, 138, 0.06)' : undefined
+                                }} onMouseEnter={(e) => {
+                                  if (selectedOption !== index) {
+                                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(30, 58, 138, 0.1), 0 2px 4px -1px rgba(30, 58, 138, 0.06)';
+                                  }
+                                }} onMouseLeave={(e) => {
+                                  if (selectedOption !== index) {
+                                    e.currentTarget.style.boxShadow = '';
+                                  }
+                                }}>
                                   {/* Checkbox */}
                                   <div className="absolute top-1 left-1 w-3 h-3 border border-gray-300 rounded-sm bg-white flex items-center justify-center">
                                     {selectedOption === index && (
@@ -475,7 +557,8 @@ const Landing = () => {
                           <div className="text-center">
                             <Link to="/login">
                               <Button 
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200"
+                                className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200"
+                                style={{ backgroundColor: '#1e3a8a' }}
                                 onClick={() => setIsPreviewInteracted(true)}
                               >
                                 Get Started
@@ -678,53 +761,52 @@ const Landing = () => {
         <div className="absolute bottom-20 left-10 w-40 h-40 bg-blue-400/10 rounded-full blur-3xl"></div>
         
         <div className="max-w-6x6 mx-auto -mt-15 -mb-15 relative z-10">
-          <Card className={`border-border/60 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-xl hover:shadow-2xl transition-all duration-500 bg-blue-50 rounded-[3rem] relative overflow-hidden ${visibleSections.about ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`}>
+          <Card className={`border-border/60 shadow-xl hover:shadow-2xl transition-all duration-500 rounded-[3rem] relative overflow-hidden ${visibleSections.about ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`} style={{ backgroundColor: '#0B132B' }}>
             {/* Decorative circles inside card */}
-            <div className="absolute top-0 left-0 w-40 h-40 bg-white/30 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-0 right-0 w-48 h-48 bg-indigo-200/30 rounded-full blur-3xl"></div>
+            <div className="absolute top-0 left-0 w-40 h-40 bg-orange-400/20 rounded-full blur-2xl animate__animated animate__pulse animate__infinite"></div>
+            <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/20 rounded-full blur-3xl animate__animated animate__pulse animate__infinite" style={{ animationDelay: '1s' }}></div>
             
             <CardContent className="p-8 md:p-12 space-y-6 relative z-10">
               <div className="text-center">
-                <h2 className={`text-3xl md:text-4xl font-bold text-gray-800 mb-6 transition-all duration-1000 ${visibleSections.about ? 'animate__animated animate__fadeInDown' : 'opacity-0 translate-y-4'}`}>
+                <h2 className={`text-3xl md:text-4xl font-bold text-white mb-8 transition-all duration-1000 ${visibleSections.about ? 'animate__animated animate__fadeInDown' : 'opacity-0 translate-y-4'}`}>
                   About ERManager Consulting Services
                 </h2>
-                <div className={`w-24 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 mx-auto mb-8 transition-all duration-1000 ${visibleSections.about ? 'animate__animated animate__fadeInLeft' : 'opacity-0 translate-x-4'}`}></div>
               </div>
               
               <div className="grid md:grid-cols-2 gap-8 items-center">
                 <div className={`space-y-4 transition-all duration-1000 ${visibleSections.about ? 'animate__animated animate__fadeInLeft' : 'opacity-0 translate-x-4'}`}>
-                  <p className="text-gray-700 leading-relaxed text-base md:text-lg">
+                  <p className="text-white leading-relaxed text-base md:text-lg">
                     ERManager consulting services is a sub-system of SAP-based SNS designed to simplify internal workforce management. 
                     It integrates attendance tracking and ticket-based task workflows in one secure portal.
                   </p>
                   
                   <div className="flex items-center space-x-4 mt-6">
                     <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
-                      <span className="text-sm font-medium text-gray-700">SAP Integration</span>
+                      <CheckCircle2 className="w-5 h-5 text-orange-400" />
+                      <span className="text-sm font-medium text-white">SAP Integration</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
-                      <span className="text-sm font-medium text-gray-700">Secure Portal</span>
+                      <CheckCircle2 className="w-5 h-5 text-orange-400" />
+                      <span className="text-sm font-medium text-white">Secure Portal</span>
                     </div>
                   </div>
                 </div>
                 
                 <div className={`flex justify-center transition-all duration-1000 ${visibleSections.about ? 'animate__animated animate__fadeInRight' : 'opacity-0 translate-x-4'}`}>
                   <div className="relative">
-                    <div className="w-48 h-48 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full flex items-center justify-center shadow-lg animate__animated animate__pulse animate__infinite">
-                      <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                    <div className="w-48 h-48 bg-gradient-to-br from-orange-400/20 to-white/20 rounded-full flex items-center justify-center shadow-lg animate__animated animate__pulse animate__infinite">
+                      <div className="w-32 h-32 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
                         <Users className="w-16 h-16 text-white" />
                       </div>
                     </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center animate__animated animate__bounce animate__infinite">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center animate__animated animate__bounce animate__infinite">
                       <Check className="w-5 h-5 text-white" />
                     </div>
                     {/* Additional decorative elements */}
-                    <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center animate__animated animate__pulse animate__infinite" style={{ animationDelay: '0.5s' }}>
-                      <Zap className="w-3 h-3 text-white" />
+                    <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-white rounded-full flex items-center justify-center animate__animated animate__pulse animate__infinite" style={{ animationDelay: '0.5s' }}>
+                      <Zap className="w-3 h-3 text-orange-500" />
                     </div>
-                    <div className="absolute top-1/2 -right-4 w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center animate__animated animate__bounce animate__infinite" style={{ animationDelay: '1s' }}>
+                    <div className="absolute top-1/2 -right-4 w-5 h-5 bg-orange-400 rounded-full flex items-center justify-center animate__animated animate__bounce animate__infinite" style={{ animationDelay: '1s' }}>
                       <Clock className="w-3 h-3 text-white" />
                     </div>
                   </div>
@@ -741,8 +823,8 @@ const Landing = () => {
       {/* Footer */}
       <footer className="mt-16 relative" style={{ marginBottom: '-200px' }} ref={footerRef} data-section="footer">
         <div className="container mx-auto px-6">
-          <Card className={`bg-white shadow-xl hover:shadow-2xl transition-all duration-500 rounded-[3rem] border-border/60 ${visibleSections.footer ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`}>
-            <CardContent className="p-8 md:p-12 pb-8">
+          <Card className={`shadow-xl hover:shadow-2xl transition-all duration-500 rounded-t-[3rem] rounded-b-none border-border/60 ${visibleSections.footer ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`} style={{ backgroundColor: '#0B132B', paddingBottom: '0px', marginBottom: '0px' }}>
+            <CardContent className="p-8 md:p-12 pb-0" style={{ paddingBottom: '0px', marginBottom: '0px' }}>
               <div className="grid md:grid-cols-2 gap-8 mb-8">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
@@ -752,46 +834,46 @@ const Landing = () => {
                       className="h-8 w-auto object-contain -ml-4"
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground max-w-md md:whitespace-nowrap">
+                  <p className="text-sm text-white max-w-md md:whitespace-nowrap">
                     Seamless Ticketing, Smarter Support transform the way you manage support
                   </p>
                 </div>
                 
                 <div className="space-y-4 text-left md:ml-60 ml-0">
-                  <h3 className="font-semibold text-foreground">Contact Us</h3>
-                  <div className="space-y-4 text-sm text-muted-foreground">
+                  <h3 className="font-bold text-white">Contact Us</h3>
+                  <div className="space-y-4 text-sm text-white">
                     <div>
                       <p className="break-all">
-                        <span className="font-semibold text-foreground">Website: </span>
-                        <a href="https://ermanagercs.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 transition-colors break-all">
+                        <span className="font-semibold text-white">Website: </span>
+                        <a href="https://ermanagercs.com/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-white/80 transition-colors break-all">
                           https://ermanagercs.com/
                         </a>
                       </p>
                       <p className="mt-3">
-                        <span className="font-semibold text-foreground">Phone: </span>
-                        <a href="tel:+923352828371" className="text-blue-600 hover:text-blue-700 transition-colors">
+                        <span className="font-semibold text-white">Phone: </span>
+                        <a href="tel:+923352828371" className="text-white hover:text-white/80 transition-colors">
                           +923352828371
                         </a>
                       </p>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-2">Head Office Address</h4>
+                      <h4 className="font-bold text-white mb-2">Head Office Address</h4>
                       <p className="break-words">
                         Plot# 225/1/ P.E.C.H.S Block 2, Karachi, Sindh,<br />
                         Pakistan.
                       </p>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-2">Days Open</h4>
+                      <h4 className="font-bold text-white mb-2">Days Open</h4>
                       <p className="break-words">Monday to Friday 9:00 am to 6:00 pm</p>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="pt-6 border-t border-border/30 mt-auto">
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-gray-500 text-xs">
+              <div className="pt-6 border-t border-white/30 mt-auto" style={{ marginBottom: '0px', paddingBottom: '0px' }}>
+                <div className="flex items-center justify-center gap-2 pb-4" style={{ marginBottom: '0px' }}>
+                  <span className="text-white text-xs">
                     © 2025, Designed and Developed by
                   </span>
                   <img 
