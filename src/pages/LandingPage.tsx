@@ -33,6 +33,9 @@ const Landing = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
+  const [showHeaderLoginModal, setShowHeaderLoginModal] = useState(false);
+  const [isHeaderClosing, setIsHeaderClosing] = useState(false);
+  const [isHeaderOpening, setIsHeaderOpening] = useState(false);
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -58,15 +61,33 @@ const Landing = () => {
     }, 800); // Match animation duration
   };
 
+  // Function to handle header login modal open animation
+  const handleHeaderOpenModal = () => {
+    setShowHeaderLoginModal(true);
+    setIsHeaderOpening(true);
+    setTimeout(() => {
+      setIsHeaderOpening(false);
+    }, 800); // Match animation duration
+  };
+
+  // Function to handle header login modal close animation
+  const handleHeaderCloseModal = () => {
+    setIsHeaderClosing(true);
+    setTimeout(() => {
+      setShowHeaderLoginModal(false);
+      setIsHeaderClosing(false);
+    }, 800); // Match animation duration
+  };
+
   // Refs for each section
   //refs for each section used 
   //isPreview has been fixed
-  const highlightsRef = useRef(null);
-  const whoWeAreRef = useRef(null);
-  const aboutRef = useRef(null);
-  const footerRef = useRef(null);
-  const featuresRef = useRef(null);
-  const benefitsRef = useRef(null);
+  const highlightsRef = useRef<HTMLDivElement>(null);
+  const whoWeAreRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const benefitsRef = useRef<HTMLDivElement>(null);
   
   const fullText = "One Work Platform To Manage Attendance & Tasks Effortlessly";
   const words = fullText.split(' ');
@@ -375,7 +396,7 @@ const Landing = () => {
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/95 sticky top-0 z-50">
-        <nav className="container mx-auto px-6 py-2 flex justify-start items-center">
+        <nav className="container mx-auto px-6 py-2 flex justify-between items-center">
           <div className="flex items-center gap-4 ml-7">
             <Link to="/" className="cursor-pointer hover:opacity-80 transition-opacity duration-200">
               <img 
@@ -384,6 +405,64 @@ const Landing = () => {
                 className="h-10 w-auto object-contain"
               />
             </Link>
+          </div>
+          
+          {/* Header Links */}
+          <div className="hidden md:flex items-center gap-6 mr-7">
+            <button 
+              onClick={() => {
+                aboutRef.current?.scrollIntoView({ 
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+              }}
+              className="text-gray-500 hover:text-gray-700 transition-colors duration-200 text-sm font-normal cursor-pointer"
+              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+            >
+              About
+            </button>
+            <button 
+              onClick={() => {
+                footerRef.current?.scrollIntoView({ 
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+              }}
+              className="text-gray-500 hover:text-gray-700 transition-colors duration-200 text-sm font-normal cursor-pointer"
+              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+            >
+              Contact us
+            </button>
+            
+            {/* Request a demo button */}
+            <button 
+              onClick={handleHeaderOpenModal}
+              className="px-6 py-2 rounded-full text-sm font-normal transition-all duration-200 relative group"
+              style={{ 
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                background: 'transparent',
+                color: '#4f46e5'
+              }}
+            >
+              {/* Gradient border */}
+              <div 
+                className="absolute inset-0 rounded-full border-2 transition-all duration-200"
+                style={{
+                  background: 'linear-gradient(90deg, #60a5fa, #a855f7)',
+                  mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  maskComposite: 'xor',
+                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  WebkitMaskComposite: 'xor',
+                  padding: '2px'
+                }}
+              ></div>
+              {/* Blue background on hover */}
+              <div 
+                className="absolute inset-0 rounded-full bg-blue-600 opacity-0 transition-all duration-200 group-hover:opacity-100"
+                style={{ padding: '2px' }}
+              ></div>
+              <span className="relative z-10 transition-colors duration-200 group-hover:text-white">Get Started</span>
+            </button>
           </div>
         </nav>
       </header>
@@ -1037,7 +1116,7 @@ const Landing = () => {
       {/* Simple Login Form */}
       {showLoginModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="bg-black/50 absolute inset-0" onClick={handleCloseModal}></div>
+          <div className="bg-black/50 backdrop-blur-sm absolute inset-0" onClick={handleCloseModal}></div>
           <div className={`relative z-10 w-full max-w-sm ${
             isOpening 
               ? 'animate__animated animate__backInLeft animate__fast' 
@@ -1197,6 +1276,180 @@ const Landing = () => {
               {/* Close Button */}
               <button
                 onClick={handleCloseModal}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* Header Login Form */}
+      {showHeaderLoginModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-end p-4 pr-36">
+          <div className="bg-black/50 backdrop-blur-sm absolute inset-0" onClick={handleHeaderCloseModal}></div>
+          <div className={`relative z-10 w-full max-w-sm ${
+            isHeaderOpening 
+              ? 'animate__animated animate__backInRight animate__fast' 
+              : isHeaderClosing 
+                ? 'animate__animated animate__backOutRight animate__fast' 
+                : ''
+          }`}>
+            <Card className="p-6 shadow-2xl border border-gray-200 bg-white">
+              {/* Header */}
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Welcome Back!</h3>
+                <p className="text-gray-600 text-xs text-center">Use your employee ID and password to sign in</p>
+              </div>
+
+              {/* Success Message */}
+              {successMessage && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md flex items-center space-x-2">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <p className="text-green-800 text-sm">{successMessage}</p>
+                </div>
+              )}
+
+              {/* General Error Message */}
+              {errors.general && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-center space-x-2">
+                  <AlertCircle className="h-5 w-5 text-red-600" />
+                  <p className="text-red-800 text-sm">{errors.general}</p>
+                </div>
+              )}
+
+              {/* Login Form */}
+              <form onSubmit={handleLoginSubmit} className="space-y-6">
+                {/* User ID Field */}
+                <div className="max-w-xs mx-auto">
+                  <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
+                    User Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="userId"
+                      type="text"
+                      placeholder="Enter your username"
+                      value={userId}
+                      onChange={(e) => {
+                        setUserId(e.target.value);
+                        if (errors.userId) {
+                          setErrors(prev => ({ ...prev, userId: undefined }));
+                        }
+                      }}
+                      className={`pl-10 py-3 rounded-md ${
+                        errors.userId 
+                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
+                          : 'border-gray-300'
+                      }`}
+                      style={{
+                        outline: 'none',
+                        boxShadow: 'none'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.userId) {
+                          e.target.style.borderColor = '#60a5fa';
+                          e.target.style.boxShadow = '0 0 0 4px rgba(96, 165, 250, 0.3)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!errors.userId) {
+                          e.target.style.borderColor = '#d1d5db';
+                          e.target.style.boxShadow = 'none';
+                        }
+                      }}
+                    />
+                  </div>
+                  {errors.userId && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-1" />
+                      {errors.userId}
+                    </p>
+                  )}
+                </div>
+
+                {/* Password Field */}
+                <div className="max-w-xs mx-auto">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (errors.password) {
+                          setErrors(prev => ({ ...prev, password: undefined }));
+                        }
+                      }}
+                      className={`pl-10 py-3 rounded-md ${
+                        errors.password 
+                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
+                          : 'border-gray-300'
+                      }`}
+                      style={{
+                        outline: 'none',
+                        boxShadow: 'none'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.password) {
+                          e.target.style.borderColor = '#60a5fa';
+                          e.target.style.boxShadow = '0 0 0 4px rgba(96, 165, 250, 0.3)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!errors.password) {
+                          e.target.style.borderColor = '#d1d5db';
+                          e.target.style.boxShadow = 'none';
+                        }
+                      }}
+                    />
+                  </div>
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-1" />
+                      {errors.password}
+                    </p>
+                  )}
+                </div>
+
+                {/* Sign In Button */}
+                <div className="flex justify-center">
+                  <Button
+                    type="submit"
+                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-4 px-12 text-base font-medium rounded-full inline-flex items-center justify-center"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Signing In...
+                      </div>
+                    ) : (
+                      "Sign In"
+                    )}
+                  </Button>
+                </div>
+              </form>
+
+              {/* Help Text */}
+              <div className="mt-4">
+                <p className="text-center text-gray-500 text-xs">
+                  Contact your administrator if you need access or have forgotten your credentials
+                </p>
+              </div>
+
+              {/* Close Button */}
+              <button
+                onClick={handleHeaderCloseModal}
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
