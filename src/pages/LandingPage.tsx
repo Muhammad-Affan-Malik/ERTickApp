@@ -590,7 +590,7 @@ const Landing = () => {
 
       {/* Who We Are Section */}
       <section className="container mx-auto px-6 py-16" ref={whoWeAreRef} data-section="whoWeAre">
-        <div className="max-w-6xl mx-auto -mt-25">
+        <div className="max-w-6xl mx-auto -mt-10">
           <Card className={`bg-gradient-to-br from-slate-50 to-gray-100 shadow-xl hover:shadow-2xl transition-all duration-500 rounded-[3rem] border-border/60 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`}>
             <CardContent className="p-8 md:p-12 space-y-6">
               <div className="text-center">
@@ -627,7 +627,7 @@ const Landing = () => {
             {/* Row 1 - Small heading (navy) */}
             <div className={`relative overflow-visible md:col-span-1 ${visibleSections.benefits ? 'animate__animated animate__fadeInUp' : ''}`} style={{ animationDelay: visibleSections.benefits ? '0.05s' : undefined }}>
               <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden bg-indigo-900">
-                <CardContent className="p-10 text-center space-y-4 flex flex-col h-full">
+                <CardContent className="p-10 text-center flex items-center justify-center h-full">
                   <h3 className="text-3xl md:text-4xl font-extrabold text-white">ERManager Implementation & Support</h3>
                 </CardContent>
               </Card>
@@ -649,7 +649,7 @@ const Landing = () => {
             {/* Row 2 - Small heading (orange) */}
             <div className={`relative overflow-visible md:col-span-1 ${visibleSections.benefits ? 'animate__animated animate__fadeInUp' : ''}`} style={{ animationDelay: visibleSections.benefits ? '0.25s' : undefined }}>
               <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden bg-gradient-to-br from-orange-400 to-orange-500">
-                <CardContent className="p-10 text-center space-y-4 flex flex-col h-full">
+                <CardContent className="p-10 text-center flex items-center justify-center h-full">
                   <h3 className="text-3xl md:text-4xl font-extrabold text-white">ERTickAPP</h3>
                 </CardContent>
               </Card>
