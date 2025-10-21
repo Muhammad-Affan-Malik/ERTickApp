@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight, User, Lock, AlertCircle } from "lucide-react";
+import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import "animate.css";
@@ -15,6 +15,15 @@ import RequirementGathering from "@/assets/DashboardPreviews/RequirementGatherin
 import TicketChat from "@/assets/DashboardPreviews/TicketChat.png";
 import TicketStatus from "@/assets/DashboardPreviews/TicketStatus.png";
 import TimeSheetTracking from "@/assets/DashboardPreviews/TimeSheetTracking.png";
+
+// Text lines for the hero section animation
+const TEXT_LINES = [
+  "One Work Platform To Manage Attendance & Tasks Effortlessly",
+  "Tired of the spreadsheet chaos?",
+  "Seamless attendance, smarter task management, and simpler leave cycles.",
+  "Clarity and control, at last.",
+  "Building the workplace of tomorrow, today."
+];
 
 const Landing = () => {
   const [, setIsHovered] = useState(false);
@@ -30,54 +39,15 @@ const Landing = () => {
     features: false,
     benefits: false,
   });
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-  const [isOpening, setIsOpening] = useState(false);
-  const [showHeaderLoginModal, setShowHeaderLoginModal] = useState(false);
-  const [isHeaderClosing, setIsHeaderClosing] = useState(false);
-  const [isHeaderOpening, setIsHeaderOpening] = useState(false);
+  const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  
+  // Login form transition states
+  const [isLoginFormVisible, setIsLoginFormVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animationDirection, setAnimationDirection] = useState<'forward' | 'backward'>('forward');
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{userId?: string; password?: string; general?: string}>({});
-  const [successMessage, setSuccessMessage] = useState("");
-  const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
-
-  // Function to handle open animation
-  const handleOpenModal = () => {
-    setShowLoginModal(true);
-    setIsOpening(true);
-    setTimeout(() => {
-      setIsOpening(false);
-    }, 800); // Match animation duration
-  };
-
-  // Function to handle close animation
-  const handleCloseModal = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setShowLoginModal(false);
-      setIsClosing(false);
-    }, 800); // Match animation duration
-  };
-
-  // Function to handle header login modal open animation
-  const handleHeaderOpenModal = () => {
-    setShowHeaderLoginModal(true);
-    setIsHeaderOpening(true);
-    setTimeout(() => {
-      setIsHeaderOpening(false);
-    }, 800); // Match animation duration
-  };
-
-  // Function to handle header login modal close animation
-  const handleHeaderCloseModal = () => {
-    setIsHeaderClosing(true);
-    setTimeout(() => {
-      setShowHeaderLoginModal(false);
-      setIsHeaderClosing(false);
-    }, 800); // Match animation duration
-  };
 
   // Refs for each section
   //refs for each section used 
@@ -89,135 +59,8 @@ const Landing = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const benefitsRef = useRef<HTMLDivElement>(null);
   
-  const fullText = "One Work Platform To Manage Attendance & Tasks Effortlessly";
-  const words = fullText.split(' ');
-
-  // Clear form functionality
-  const clearForm = () => {
-    setUserId("");
-    setPassword("");
-    setErrors({});
-    setSuccessMessage("");
-  };
-
-  // Validation function (same as LoginPage)
-  const validateForm = () => {
-    const newErrors: {userId?: string; password?: string; general?: string} = {};
-
-    // User ID validation (can be email or username)
-    if (!userId.trim()) {
-      newErrors.userId = "User ID or Email is required";
-    } else if (userId.trim().length < 3) {
-      newErrors.userId = "User ID must be at least 3 characters";
-    } else {
-      // Check if it's an email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const usernameRegex = /^[a-zA-Z0-9_]+$/;
-      
-      if (emailRegex.test(userId.trim())) {
-        // It's an email - validate email format
-        if (userId.trim().length > 254) {
-          newErrors.userId = "Email is too long";
-        }
-      } else {
-        // It's a username - validate username format
-        if (!usernameRegex.test(userId.trim())) {
-          newErrors.userId = "Username can only contain letters, numbers, and underscores";
-        } else if (userId.trim().length > 20) {
-          newErrors.userId = "Username must be less than 20 characters";
-        }
-      }
-    }
-
-    // Password validation
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    } else if (password.length > 128) {
-      newErrors.password = "Password is too long";
-    } else {
-      // Check password complexity
-      const hasUpperCase = /[A-Z]/.test(password);
-      const hasLowerCase = /[a-z]/.test(password);
-      const hasNumbers = /\d/.test(password);
-      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-      
-      let complexityErrors = [];
-      if (!hasUpperCase) complexityErrors.push("one uppercase letter");
-      if (!hasLowerCase) complexityErrors.push("one lowercase letter");
-      if (!hasNumbers) complexityErrors.push("one number");
-      if (!hasSpecialChar) complexityErrors.push("one special character");
-      
-      if (complexityErrors.length > 0) {
-        newErrors.password = `Password must contain at least ${complexityErrors.join(", ")}`;
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Login form handler (same as LoginPage)
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Clear previous messages
-    setErrors({});
-    setSuccessMessage("");
-
-    // Validate form
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // Simulate API call with error handling
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Simulate different scenarios
-          const random = Math.random();
-          
-          if (random < 0.7) {
-            // Success case
-            resolve("Login successful");
-          } else if (random < 0.9) {
-            // Network error
-            reject(new Error("Network error. Please check your connection."));
-          } else {
-            // Invalid credentials
-            reject(new Error("Invalid User ID or Password"));
-          }
-        }, 1500);
-      });
-
-      // Success
-      setSuccessMessage("Login successful! Redirecting...");
-      setTimeout(() => {
-        // In real app, redirect to dashboard
-        setShowLoginModal(false);
-        clearForm();
-      }, 2000);
-
-    } catch (error) {
-      // Handle errors
-      if (error instanceof Error) {
-        if (error.message.includes("Network")) {
-          setErrors({ general: "Network error. Please check your internet connection and try again." });
-        } else if (error.message.includes("Invalid")) {
-          setErrors({ general: "Invalid User ID or Password. Please try again." });
-        } else {
-          setErrors({ general: "An unexpected error occurred. Please try again." });
-        }
-      } else {
-        setErrors({ general: "An unexpected error occurred. Please try again." });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const currentText = TEXT_LINES[currentTextIndex];
+  const words = currentText.split(' ');
 
   useEffect(() => {
     const revealSpeedMs = 300;        // delay between each word reveal (slower)
@@ -242,13 +85,14 @@ const Landing = () => {
           currentIndex++;
           later(stepReveal, revealSpeedMs);
         } else {
-          // full sentence visible → pause, then hide and restart
+          // full sentence visible → pause, then hide and move to next text
           later(() => {
             if (cancelled) return;
             setVisibleWords(0);
             later(() => {
               if (cancelled) return;
-              runCycle();
+              // Move to next text line
+              setCurrentTextIndex((prev) => (prev + 1) % TEXT_LINES.length);
             }, pauseAfterHideMs);
           }, pauseAfterRevealMs);
         }
@@ -263,7 +107,7 @@ const Landing = () => {
       cancelled = true;
       timers.forEach((id) => clearTimeout(id));
     };
-  }, [words.length]);
+  }, [currentTextIndex, words.length]);
 
   // Auto-slide carousel for dashboard previews
   useEffect(() => {
@@ -385,6 +229,26 @@ const Landing = () => {
     },
   ];
 
+  // Transition handler for smooth animation between button and form
+  const handleTransition = () => {
+    if (isAnimating) return; // Prevent multiple clicks during animation
+    
+    setIsAnimating(true);
+    
+    // Set animation direction based on current state
+    if (!isLoginFormVisible) {
+      setAnimationDirection('forward'); // Button -> Form
+    } else {
+      setAnimationDirection('backward'); // Form -> Button
+    }
+    
+    // Toggle the login form visibility after a slight delay for animation
+    setTimeout(() => {
+      setIsLoginFormVisible(!isLoginFormVisible);
+      setIsAnimating(false);
+    }, 500); // Match animation duration (0.5s)
+  };
+
   return (
     
     <>
@@ -435,34 +299,35 @@ const Landing = () => {
             </button>
             
             {/* Request a demo button */}
-            <button 
-              onClick={handleHeaderOpenModal}
-              className="px-6 py-2 rounded-full text-sm font-normal transition-all duration-200 relative group"
-              style={{ 
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                background: 'transparent',
-                color: '#4f46e5'
-              }}
-            >
-              {/* Gradient border */}
-              <div 
-                className="absolute inset-0 rounded-full border-2 transition-all duration-200"
-                style={{
-                  background: 'linear-gradient(90deg, #60a5fa, #a855f7)',
-                  mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                  maskComposite: 'xor',
-                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                  WebkitMaskComposite: 'xor',
-                  padding: '2px'
+            <Link to="/login">
+              <button 
+                className="px-6 py-2 rounded-full text-sm font-normal transition-all duration-200 relative group"
+                style={{ 
+                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  background: 'transparent',
+                  color: '#4f46e5'
                 }}
-              ></div>
-              {/* Blue background on hover */}
-              <div 
-                className="absolute inset-0 rounded-full bg-blue-600 opacity-0 transition-all duration-200 group-hover:opacity-100"
-                style={{ padding: '2px' }}
-              ></div>
-              <span className="relative z-10 transition-colors duration-200 group-hover:text-white">Get Started</span>
-            </button>
+              >
+                {/* Gradient border */}
+                <div 
+                  className="absolute inset-0 rounded-full border-2 transition-all duration-200"
+                  style={{
+                    background: 'linear-gradient(90deg, #60a5fa, #a855f7)',
+                    mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    maskComposite: 'xor',
+                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMaskComposite: 'xor',
+                    padding: '2px'
+                  }}
+                ></div>
+                {/* Blue background on hover */}
+                <div 
+                  className="absolute inset-0 rounded-full bg-blue-600 opacity-0 transition-all duration-200 group-hover:opacity-100"
+                  style={{ padding: '2px' }}
+                ></div>
+                <span className="relative z-10 transition-colors duration-200 group-hover:text-white">Get Started</span>
+              </button>
+            </Link>
           </div>
         </nav>
       </header>
@@ -478,13 +343,15 @@ const Landing = () => {
           <Card className="rounded-[3rem] shadow-none relative overflow-hidden" style={{ backgroundColor: '#0B132B' }}>
             
             <CardContent className="p-6 sm:p-8 md:p-12 lg:p-16 relative z-10">
-              {/* Hero Section */}
+              {/* Hero Section with Transition */}
               <div className="text-center space-y-6 sm:space-y-8 mb-12 sm:mb-16">
+                
+                {/* Static Heading - Always Visible */}
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-normal leading-tight min-h-[200px] flex items-center justify-center text-center text-white" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 400 }}>
-                  <span className="reveal-text">
+                  <span key={currentTextIndex} className="reveal-text">
                     {words.map((word, index) => (
                       <span
-                        key={index}
+                        key={`${currentTextIndex}-${index}`}
                         className={`reveal-word ${index < visibleWords ? 'visible' : ''}`}
                         style={{ 
                           transitionDelay: `${index * 0.15}s`,
@@ -498,28 +365,102 @@ const Landing = () => {
                   </span>
                 </h1>
                 
+                {/* Static Subheading - Always Visible */}
                 <div className="text-xs sm:text-sm md:text-lg lg:text-xl text-white max-w-[280px] sm:max-w-sm md:max-w-2xl mx-auto px-2 sm:px-4 text-center leading-relaxed">
                   <p className="md:whitespace-nowrap" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-                  Seamless Ticketing, Smarter Support
+                    Seamless Ticketing, Smarter Support
                   </p>
                 </div>
 
-                <div className="pt-4">
-                  <Button
-                    className="group text-white !py-6 !px-8 text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
-                    style={{ backgroundColor: '#1e3a8a' }}
-                    onClick={handleOpenModal}
-                  >
-                    Enter Dashboard
-                    <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-                  </Button>
-                </div>
+                {/* Transition Area - Only Button/Form Animates */}
+                <div className="pt-4 relative min-h-[200px] flex items-center justify-center">
+                  
+                  {/* Enter Dashboard Button */}
+                  {!isLoginFormVisible && (
+                    <div 
+                      className={`${
+                        isAnimating && animationDirection === 'forward' 
+                          ? 'animate__animated animate__fadeOut animate__zoomOut' 
+                          : ''
+                      }`}
+                      style={{ animationDuration: '0.5s' }}
+                    >
+                      <Button
+                        onClick={handleTransition}
+                        className="group text-white !py-6 !px-8 text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                        style={{ backgroundColor: '#1e3a8a' }}
+                      >
+                        Enter Dashboard
+                        <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                      </Button>
+                    </div>
+                  )}
 
+                  {/* Login Form */}
+                  {isLoginFormVisible && (
+                    <div 
+                      className={`absolute top-0 left-1/2 transform -translate-x-1/2 w-full ${
+                        isAnimating && animationDirection === 'backward'
+                          ? 'animate__animated animate__fadeOut animate__zoomOut' 
+                          : !isAnimating && animationDirection === 'forward'
+                          ? 'animate__animated animate__fadeIn animate__zoomIn'
+                          : ''
+                      }`}
+                      style={{ animationDuration: '0.5s' }}
+                    >
+                      <div className="w-full max-w-xs mx-auto px-4">
+                        <div className="space-y-3">
+                          {/* Username Input */}
+                          <Input
+                            id="userId"
+                            type="text"
+                            placeholder="Username"
+                            value={userId}
+                            onChange={(e) => setUserId(e.target.value)}
+                            className="w-full text-center !py-2.5 text-sm rounded-full bg-white"
+                          />
+
+                          {/* Password Input */}
+                          <Input
+                            id="password"
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full text-center !py-2.5 text-sm rounded-full bg-white"
+                          />
+
+                          {/* Buttons */}
+                          <div className="flex gap-2 pt-2">
+                            <Button
+                              onClick={handleTransition}
+                              className="flex-1 text-gray-700 !py-2.5 text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 bg-gray-100 hover:bg-gray-200"
+                            >
+                              <ArrowLeft className="h-4 w-4" />
+                              Go Back
+                            </Button>
+                            
+                            <Link to="/login" className="flex-1">
+                              <Button
+                                className="w-full text-white !py-2.5 text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300"
+                                style={{ backgroundColor: '#1e3a8a' }}
+                              >
+                                Login
+                                <ArrowRight className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
 
               </div>
 
               {/* System Highlights */}
-              <div className="max-w-5xl mx-auto" ref={highlightsRef} data-section="highlights">
+              <div className="max-w-5xl mx-auto -mt-20" ref={highlightsRef} data-section="highlights">
                 <div className={`transition-all duration-1000 ${visibleSections.highlights ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ backgroundColor: '#0B132B', padding: '2rem', borderRadius: '1.5rem' }}>
                   {/* Desktop: Elegant horizontal layout */}
                   <div className="hidden md:flex md:flex-row items-center justify-center gap-8 md:gap-12">
@@ -834,31 +775,7 @@ const Landing = () => {
           {/* Section intentionally left without a headline per request */}
           
           <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch transition-all duration-1000 ${visibleSections.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            {/* Feature 1 - Navy Blue (now first) */}
-            <div className={`relative overflow-visible ${visibleSections.features ? 'animate__animated animate__fadeInUp' : ''}`} style={{ animationDelay: visibleSections.features ? '0.1s' : undefined }}>
-              <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden bg-indigo-900 mt-[-15px] mb-[15px]">
-                <CardContent className="p-8 text-center space-y-4 flex flex-col h-full">
-                  <h3 className="text-2xl md:text-3xl font-extrabold text-white">In-Depth Expertise</h3>
-                  <p className="text-indigo-100 text-sm leading-relaxed">
-                    Our professionals are experienced veterans with rich expertise in a broad array of disciplines, including:
-                  </p>
-                  <ul className="text-indigo-100 text-sm leading-relaxed space-y-2 text-left max-w-sm mx-auto">
-                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Development of Business Strategy</li>
-                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Organizational Growth and Optimization</li>
-                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Digital Transformation Strategies</li>
-                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Performance Improvement Strategies</li>
-                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Change Management Execution</li>
-                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Smooth Technology Integration</li>
-                  </ul>
-                  <div className="flex-1" />
-                  <div className="mt-4">
-                    <a href="https://ermanagercs.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white font-medium underline underline-offset-4 decoration-white">
-                      Learn more <span>→</span>
-                    </a>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+
 
             {/* Feature 2 - Yellow (now middle) */}
             <div className={`relative overflow-visible ${visibleSections.features ? 'animate__animated animate__fadeInUp' : ''}`} style={{ animationDelay: visibleSections.features ? '0.25s' : undefined }}>
@@ -871,6 +788,32 @@ const Landing = () => {
                   <div className="flex-1" />
                   <div className="mt-4">
                     <a href="https://ermanagercs.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-gray-900 font-medium underline underline-offset-4 decoration-black/40 hover:decoration-black">
+                      Learn more <span>→</span>
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+                        {/* Feature 1 - Navy Blue (now first) */}
+                        <div className={`relative overflow-visible ${visibleSections.features ? 'animate__animated animate__fadeInUp' : ''}`} style={{ animationDelay: visibleSections.features ? '0.1s' : undefined }}>
+              <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden mt-[-15px] mb-[15px]" style={{ backgroundColor: '#0B132B' }}>
+                <CardContent className="p-8 text-center space-y-4 flex flex-col h-full">
+                  <h3 className="text-2xl md:text-3xl font-extrabold text-white">In-Depth Expertise</h3>
+                  <p className="text-white text-sm leading-relaxed">
+                    Our professionals are experienced veterans with rich expertise in a broad array of disciplines, including:
+                  </p>
+                  <ul className="text-white text-sm leading-relaxed space-y-2 text-left max-w-sm mx-auto">
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Development of Business Strategy</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Organizational Growth and Optimization</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Digital Transformation Strategies</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Performance Improvement Strategies</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Change Management Execution</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400 mt-1" />Smooth Technology Integration</li>
+                  </ul>
+                  <div className="flex-1" />
+                  <div className="mt-4">
+                    <a href="https://ermanagercs.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white font-medium underline underline-offset-4 decoration-white">
                       Learn more <span>→</span>
                     </a>
                   </div>
@@ -936,7 +879,7 @@ const Landing = () => {
           <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch transition-all duration-1000 ${visibleSections.benefits ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             {/* Row 1 - Small heading (navy) */}
             <div className={`relative overflow-visible md:col-span-1 ${visibleSections.benefits ? 'animate__animated animate__fadeInUp' : ''}`} style={{ animationDelay: visibleSections.benefits ? '0.05s' : undefined }}>
-              <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden bg-indigo-900">
+              <Card className="relative h-full border-gray-200 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_28px_80px_-10px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 rounded-[3rem] overflow-hidden" style={{ backgroundColor: '#0B132B' }}>
                 <CardContent className="p-10 text-center flex items-center justify-center h-full">
                   <h3 className="text-3xl md:text-4xl font-extrabold text-white">ERManager Implementation & Support</h3>
                 </CardContent>
@@ -1113,353 +1056,6 @@ const Landing = () => {
         </div>
       </footer>
 
-      {/* Simple Login Form */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="bg-black/50 backdrop-blur-sm absolute inset-0" onClick={handleCloseModal}></div>
-          <div className={`relative z-10 w-full max-w-sm ${
-            isOpening 
-              ? 'animate__animated animate__backInLeft animate__fast' 
-              : isClosing 
-                ? 'animate__animated animate__backOutRight animate__fast' 
-                : ''
-          }`}>
-            <Card className="p-6 shadow-2xl border border-gray-200 bg-white">
-              {/* Header */}
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Welcome Back!</h3>
-                <p className="text-gray-600 text-xs text-center">Use your employee ID and password to sign in</p>
-              </div>
-
-              {/* Success Message */}
-              {successMessage && (
-                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <p className="text-green-800 text-sm">{successMessage}</p>
-                </div>
-              )}
-
-              {/* General Error Message */}
-              {errors.general && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-center space-x-2">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
-                  <p className="text-red-800 text-sm">{errors.general}</p>
-                </div>
-              )}
-
-              {/* Login Form */}
-              <form onSubmit={handleLoginSubmit} className="space-y-6">
-                {/* User ID Field */}
-                <div className="max-w-xs mx-auto">
-                  <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
-                    User Name
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="userId"
-                      type="text"
-                      placeholder="Enter your username"
-                      value={userId}
-                      onChange={(e) => {
-                        setUserId(e.target.value);
-                        if (errors.userId) {
-                          setErrors(prev => ({ ...prev, userId: undefined }));
-                        }
-                      }}
-                      className={`pl-10 py-3 rounded-md ${
-                        errors.userId 
-                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                          : 'border-gray-300'
-                      }`}
-                      style={{
-                        outline: 'none',
-                        boxShadow: 'none'
-                      }}
-                      onFocus={(e) => {
-                        if (!errors.userId) {
-                          e.target.style.borderColor = '#60a5fa';
-                          e.target.style.boxShadow = '0 0 0 4px rgba(96, 165, 250, 0.3)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        if (!errors.userId) {
-                          e.target.style.borderColor = '#d1d5db';
-                          e.target.style.boxShadow = 'none';
-                        }
-                      }}
-                    />
-                  </div>
-                  {errors.userId && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-1" />
-                      {errors.userId}
-                    </p>
-                  )}
-                </div>
-
-                {/* Password Field */}
-                <div className="max-w-xs mx-auto">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        if (errors.password) {
-                          setErrors(prev => ({ ...prev, password: undefined }));
-                        }
-                      }}
-                      className={`pl-10 py-3 rounded-md ${
-                        errors.password 
-                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                          : 'border-gray-300'
-                      }`}
-                      style={{
-                        outline: 'none',
-                        boxShadow: 'none'
-                      }}
-                      onFocus={(e) => {
-                        if (!errors.password) {
-                          e.target.style.borderColor = '#60a5fa';
-                          e.target.style.boxShadow = '0 0 0 4px rgba(96, 165, 250, 0.3)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        if (!errors.password) {
-                          e.target.style.borderColor = '#d1d5db';
-                          e.target.style.boxShadow = 'none';
-                        }
-                      }}
-                    />
-                  </div>
-                  {errors.password && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-1" />
-                      {errors.password}
-                    </p>
-                  )}
-                </div>
-
-                {/* Sign In Button */}
-                <div className="flex justify-center">
-                  <Button
-                    type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-4 px-12 text-base font-medium rounded-full inline-flex items-center justify-center"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Signing In...
-                      </div>
-                    ) : (
-                      "Sign In"
-                    )}
-                  </Button>
-                </div>
-              </form>
-
-              {/* Help Text */}
-              <div className="mt-4">
-                <p className="text-center text-gray-500 text-xs">
-                  Contact your administrator if you need access or have forgotten your credentials
-                </p>
-              </div>
-
-              {/* Close Button */}
-              <button
-                onClick={handleCloseModal}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </Card>
-          </div>
-        </div>
-      )}
-
-      {/* Header Login Form */}
-      {showHeaderLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-end p-4 pr-36">
-          <div className="bg-black/50 backdrop-blur-sm absolute inset-0" onClick={handleHeaderCloseModal}></div>
-          <div className={`relative z-10 w-full max-w-sm ${
-            isHeaderOpening 
-              ? 'animate__animated animate__backInRight animate__fast' 
-              : isHeaderClosing 
-                ? 'animate__animated animate__backOutRight animate__fast' 
-                : ''
-          }`}>
-            <Card className="p-6 shadow-2xl border border-gray-200 bg-white">
-              {/* Header */}
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Welcome Back!</h3>
-                <p className="text-gray-600 text-xs text-center">Use your employee ID and password to sign in</p>
-              </div>
-
-              {/* Success Message */}
-              {successMessage && (
-                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <p className="text-green-800 text-sm">{successMessage}</p>
-                </div>
-              )}
-
-              {/* General Error Message */}
-              {errors.general && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-center space-x-2">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
-                  <p className="text-red-800 text-sm">{errors.general}</p>
-                </div>
-              )}
-
-              {/* Login Form */}
-              <form onSubmit={handleLoginSubmit} className="space-y-6">
-                {/* User ID Field */}
-                <div className="max-w-xs mx-auto">
-                  <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
-                    User Name
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="userId"
-                      type="text"
-                      placeholder="Enter your username"
-                      value={userId}
-                      onChange={(e) => {
-                        setUserId(e.target.value);
-                        if (errors.userId) {
-                          setErrors(prev => ({ ...prev, userId: undefined }));
-                        }
-                      }}
-                      className={`pl-10 py-3 rounded-md ${
-                        errors.userId 
-                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                          : 'border-gray-300'
-                      }`}
-                      style={{
-                        outline: 'none',
-                        boxShadow: 'none'
-                      }}
-                      onFocus={(e) => {
-                        if (!errors.userId) {
-                          e.target.style.borderColor = '#60a5fa';
-                          e.target.style.boxShadow = '0 0 0 4px rgba(96, 165, 250, 0.3)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        if (!errors.userId) {
-                          e.target.style.borderColor = '#d1d5db';
-                          e.target.style.boxShadow = 'none';
-                        }
-                      }}
-                    />
-                  </div>
-                  {errors.userId && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-1" />
-                      {errors.userId}
-                    </p>
-                  )}
-                </div>
-
-                {/* Password Field */}
-                <div className="max-w-xs mx-auto">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        if (errors.password) {
-                          setErrors(prev => ({ ...prev, password: undefined }));
-                        }
-                      }}
-                      className={`pl-10 py-3 rounded-md ${
-                        errors.password 
-                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                          : 'border-gray-300'
-                      }`}
-                      style={{
-                        outline: 'none',
-                        boxShadow: 'none'
-                      }}
-                      onFocus={(e) => {
-                        if (!errors.password) {
-                          e.target.style.borderColor = '#60a5fa';
-                          e.target.style.boxShadow = '0 0 0 4px rgba(96, 165, 250, 0.3)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        if (!errors.password) {
-                          e.target.style.borderColor = '#d1d5db';
-                          e.target.style.boxShadow = 'none';
-                        }
-                      }}
-                    />
-                  </div>
-                  {errors.password && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-1" />
-                      {errors.password}
-                    </p>
-                  )}
-                </div>
-
-                {/* Sign In Button */}
-                <div className="flex justify-center">
-                  <Button
-                    type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-4 px-12 text-base font-medium rounded-full inline-flex items-center justify-center"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Signing In...
-                      </div>
-                    ) : (
-                      "Sign In"
-                    )}
-                  </Button>
-                </div>
-              </form>
-
-              {/* Help Text */}
-              <div className="mt-4">
-                <p className="text-center text-gray-500 text-xs">
-                  Contact your administrator if you need access or have forgotten your credentials
-                </p>
-              </div>
-
-              {/* Close Button */}
-              <button
-                onClick={handleHeaderCloseModal}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </Card>
-          </div>
-        </div>
-      )}
     </div>
     </>
   );
