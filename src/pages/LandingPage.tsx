@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight, ArrowLeft } from "lucide-react";
+import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight, ArrowLeft, Loader2, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import "animate.css";
@@ -48,6 +48,11 @@ const Landing = () => {
   const [animationDirection, setAnimationDirection] = useState<'forward' | 'backward'>('forward');
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [isShaking, setIsShaking] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [hasErrorFocus, setHasErrorFocus] = useState(false);
 
   // Refs for each section
   //refs for each section used 
@@ -58,6 +63,8 @@ const Landing = () => {
   const footerRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
   const benefitsRef = useRef<HTMLDivElement>(null);
+  const heroSectionRef = useRef<HTMLDivElement>(null);
+  const userIdInputRef = useRef<HTMLInputElement>(null);
   
   const currentText = TEXT_LINES[currentTextIndex];
   const words = currentText.split(' ');
@@ -229,15 +236,73 @@ const Landing = () => {
     },
   ];
 
+  // Handle login validation
+  const handleLogin = () => {
+    // Reset error state
+    setLoginError("");
+    setIsShaking(false);
+    setHasErrorFocus(false);
+
+    // Check if fields are empty
+    if (!userId.trim() || !password.trim()) {
+      setLoginError("Fields are required");
+      setIsShaking(true);
+      setHasErrorFocus(true);
+      setTimeout(() => setIsShaking(false), 500);
+      return;
+    }
+
+    // Validate credentials (you can replace this with actual authentication logic)
+    // For demo purposes, let's check for specific credentials
+    // Replace this with your actual validation logic
+    const isValidCredentials = userId === "admin" && password === "password"; // Replace with your actual validation
+    
+    if (!isValidCredentials) {
+      setLoginError("Invalid user ID or password");
+      setIsShaking(true);
+      setHasErrorFocus(true);
+      setTimeout(() => setIsShaking(false), 500);
+      return;
+    }
+
+    // If validation passes, show loading state
+    setIsLoading(true);
+    console.log('Login successful', { userId, password });
+    
+    // Simulate API call - replace with your actual login logic
+    setTimeout(() => {
+      // Add your successful login logic here (e.g., redirect, set auth token, etc.)
+      setIsLoading(false);
+      // Example: window.location.href = '/dashboard';
+    }, 2000);
+  };
+
   // Transition handler for smooth animation between button and form
-  const handleTransition = () => {
+  const handleTransition = (shouldScroll: boolean = false) => {
     if (isAnimating) return; // Prevent multiple clicks during animation
     
     setIsAnimating(true);
     
+    // Clear errors and loading state when transitioning
+    setLoginError("");
+    setIsShaking(false);
+    setIsLoading(false);
+    setShowPassword(false);
+    setHasErrorFocus(false);
+    
     // Set animation direction based on current state
     if (!isLoginFormVisible) {
       setAnimationDirection('forward'); // Button -> Form
+      
+      // Scroll to hero section if needed
+      if (shouldScroll) {
+        setTimeout(() => {
+          heroSectionRef.current?.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }, 100);
+      }
     } else {
       setAnimationDirection('backward'); // Form -> Button
     }
@@ -246,6 +311,13 @@ const Landing = () => {
     setTimeout(() => {
       setIsLoginFormVisible(!isLoginFormVisible);
       setIsAnimating(false);
+      
+      // Focus on username input after form is visible
+      if (!isLoginFormVisible && shouldScroll) {
+        setTimeout(() => {
+          userIdInputRef.current?.focus();
+        }, 600); // Wait for scroll and animation to complete
+      }
     }, 500); // Match animation duration (0.5s)
   };
 
@@ -275,9 +347,9 @@ const Landing = () => {
           <div className="hidden md:flex items-center gap-6 mr-7">
             <button 
               onClick={() => {
-                aboutRef.current?.scrollIntoView({ 
+                whoWeAreRef.current?.scrollIntoView({ 
                   behavior: 'smooth',
-                  block: 'start'
+                  block: 'center'
                 });
               }}
               className="text-gray-500 hover:text-gray-700 transition-colors duration-200 text-sm font-normal cursor-pointer"
@@ -299,35 +371,34 @@ const Landing = () => {
             </button>
             
             {/* Request a demo button */}
-            <Link to="/login">
-              <button 
-                className="px-6 py-2 rounded-full text-sm font-normal transition-all duration-200 relative group"
-                style={{ 
-                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                  background: 'transparent',
-                  color: '#4f46e5'
+            <button 
+              onClick={() => handleTransition(true)}
+              className="px-6 py-2 rounded-full text-sm font-normal transition-all duration-200 relative group cursor-pointer"
+              style={{ 
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                background: 'transparent',
+                color: '#4f46e5'
+              }}
+            >
+              {/* Gradient border */}
+              <div 
+                className="absolute inset-0 rounded-full border-2 transition-all duration-200"
+                style={{
+                  background: 'linear-gradient(90deg, #60a5fa, #a855f7)',
+                  mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  maskComposite: 'xor',
+                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  WebkitMaskComposite: 'xor',
+                  padding: '2px'
                 }}
-              >
-                {/* Gradient border */}
-                <div 
-                  className="absolute inset-0 rounded-full border-2 transition-all duration-200"
-                  style={{
-                    background: 'linear-gradient(90deg, #60a5fa, #a855f7)',
-                    mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    maskComposite: 'xor',
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor',
-                    padding: '2px'
-                  }}
-                ></div>
-                {/* Blue background on hover */}
-                <div 
-                  className="absolute inset-0 rounded-full bg-blue-600 opacity-0 transition-all duration-200 group-hover:opacity-100"
-                  style={{ padding: '2px' }}
-                ></div>
-                <span className="relative z-10 transition-colors duration-200 group-hover:text-white">Get Started</span>
-              </button>
-            </Link>
+              ></div>
+              {/* Blue background on hover */}
+              <div 
+                className="absolute inset-0 rounded-full bg-blue-600 opacity-0 transition-all duration-200 group-hover:opacity-100"
+                style={{ padding: '2px' }}
+              ></div>
+              <span className="relative z-10 transition-colors duration-200 group-hover:text-white">Get Started</span>
+            </button>
           </div>
         </nav>
       </header>
@@ -344,7 +415,7 @@ const Landing = () => {
             
             <CardContent className="p-6 sm:p-8 md:p-12 lg:p-16 relative z-10">
               {/* Hero Section with Transition */}
-              <div className="text-center space-y-6 sm:space-y-8 mb-12 sm:mb-16">
+              <div ref={heroSectionRef} className="text-center space-y-6 sm:space-y-8 mb-12 sm:mb-16">
                 
                 {/* Static Heading - Always Visible */}
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-normal leading-tight min-h-[200px] flex items-center justify-center text-center text-white" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 400 }}>
@@ -386,7 +457,7 @@ const Landing = () => {
                       style={{ animationDuration: '0.5s' }}
                     >
                       <Button
-                        onClick={handleTransition}
+                        onClick={() => handleTransition(false)}
                         className="group text-white !py-6 !px-8 text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
                         style={{ backgroundColor: '#1e3a8a' }}
                       >
@@ -410,45 +481,112 @@ const Landing = () => {
                     >
                       <div className="w-full max-w-xs mx-auto px-4">
                         <div className="space-y-3">
+                          {/* Error Message */}
+                          {loginError && (
+                            <div className="text-center">
+                              <p className="text-white text-sm font-medium">{loginError}</p>
+                            </div>
+                          )}
+
                           {/* Username Input */}
                           <Input
+                            ref={userIdInputRef}
                             id="userId"
                             type="text"
-                            placeholder="Username"
+                            placeholder="User ID"
                             value={userId}
-                            onChange={(e) => setUserId(e.target.value)}
-                            className="w-full text-center !py-2.5 text-sm rounded-full bg-white"
+                            onChange={(e) => {
+                              setUserId(e.target.value);
+                              if (loginError) {
+                                setLoginError("");
+                                setHasErrorFocus(false);
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleLogin();
+                              }
+                            }}
+                            className={`w-full text-center !py-2.5 text-sm rounded-full bg-white transition-all ${
+                              hasErrorFocus ? 'border-red-600' : ''
+                            } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
+                            style={{ 
+                              textAlign: 'center',
+                              borderColor: hasErrorFocus ? '#dc2626' : undefined,
+                              borderWidth: hasErrorFocus ? '2px' : undefined,
+                              boxShadow: hasErrorFocus ? '0 0 0 3px rgba(220, 38, 38, 0.4), 0 0 10px rgba(220, 38, 38, 0.3)' : undefined
+                            }}
                           />
 
                           {/* Password Input */}
-                          <Input
-                            id="password"
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full text-center !py-2.5 text-sm rounded-full bg-white"
-                          />
-
-                          {/* Buttons */}
-                          <div className="flex gap-2 pt-2">
-                            <Button
-                              onClick={handleTransition}
-                              className="flex-1 text-gray-700 !py-2.5 text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 bg-gray-100 hover:bg-gray-200"
+                          <div className="relative">
+                            <Input
+                              id="password"
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Password"
+                              value={password}
+                              onChange={(e) => {
+                                setPassword(e.target.value);
+                                if (loginError) {
+                                  setLoginError("");
+                                  setHasErrorFocus(false);
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleLogin();
+                                }
+                              }}
+                              className={`w-full text-center !py-2.5 !pr-4 text-sm rounded-full bg-white transition-all ${
+                                hasErrorFocus ? 'border-red-600' : ''
+                              } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
+                              style={{ 
+                                textAlign: 'center',
+                                fontFamily: 'monospace',
+                                borderColor: hasErrorFocus ? '#dc2626' : undefined,
+                                borderWidth: hasErrorFocus ? '2px' : undefined,
+                                boxShadow: hasErrorFocus ? '0 0 0 3px rgba(220, 38, 38, 0.4), 0 0 10px rgba(220, 38, 38, 0.3)' : undefined
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                             >
-                              <ArrowLeft className="h-4 w-4" />
-                              Go Back
-                            </Button>
-                            
-                            <Link to="/login" className="flex-1">
-                              <Button
-                                className="w-full text-white !py-2.5 text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300"
-                                style={{ backgroundColor: '#1e3a8a' }}
-                              >
-                                Login
-                                <ArrowRight className="h-4 w-4" />
-                              </Button>
-                            </Link>
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
+
+                          {/* Buttons or Loading State */}
+                          <div className="pt-2 relative">
+                            {!isLoading ? (
+                              <div className="flex gap-2 animate__animated animate__fadeIn">
+                                <Button
+                                  onClick={() => handleTransition(false)}
+                                  className="flex-1 text-gray-700 !py-2.5 text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 bg-gray-100 hover:bg-gray-200"
+                                >
+                                  <ArrowLeft className="h-4 w-4" />
+                                  Go Back
+                                </Button>
+                                
+                                <Button
+                                  onClick={handleLogin}
+                                  className="flex-1 text-white !py-2.5 text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300"
+                                  style={{ backgroundColor: '#1e3a8a' }}
+                                >
+                                  Login
+                                  <ArrowRight className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex justify-center py-2 animate__animated animate__zoomIn">
+                                <Loader2 className="h-10 w-10 text-white animate-spin" />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -634,16 +772,17 @@ const Landing = () => {
                         </div>
 
                         <div className="text-center">
-                          <Link to="/login">
-                            <Button 
-                              className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200 w-full"
-                              style={{ backgroundColor: '#1e3a8a' }}
-                              onClick={() => setIsPreviewInteracted(true)}
-                            >
-                              Get Started
-                              <span className="ml-1">→</span>
-                            </Button>
-                          </Link>
+                          <Button 
+                            className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200 w-full"
+                            style={{ backgroundColor: '#1e3a8a' }}
+                            onClick={() => {
+                              setIsPreviewInteracted(true);
+                              handleTransition(true);
+                            }}
+                          >
+                            Get Started
+                            <span className="ml-1">→</span>
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -727,16 +866,17 @@ const Landing = () => {
                           </div>
 
                           <div className="text-center">
-                            <Link to="/login">
-                              <Button 
-                                className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200"
-                                style={{ backgroundColor: '#1e3a8a' }}
-                                onClick={() => setIsPreviewInteracted(true)}
-                              >
-                                Get Started
-                                <span className="ml-1">→</span>
-                              </Button>
-                            </Link>
+                            <Button 
+                              className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200"
+                              style={{ backgroundColor: '#1e3a8a' }}
+                              onClick={() => {
+                                setIsPreviewInteracted(true);
+                                handleTransition(true);
+                              }}
+                            >
+                              Get Started
+                              <span className="ml-1">→</span>
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -995,7 +1135,10 @@ const Landing = () => {
             <CardContent className="p-8 md:p-12 pb-0" style={{ paddingBottom: '0px', marginBottom: '0px' }}>
               <div className="grid md:grid-cols-2 gap-8 mb-8">
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3">
+                  <div 
+                    onClick={() => window.location.reload()} 
+                    className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity w-fit"
+                  >
                     <img 
                       src={ERManagerLogo} 
                       alt="ERManager Consulting Services" 
@@ -1047,6 +1190,7 @@ const Landing = () => {
                   <img 
                     src={ERManagerLogo} 
                     alt="ERManager Consulting Services" 
+                    onClick={() => window.location.reload()}
                     className="h-4 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
                   />
                 </div>
