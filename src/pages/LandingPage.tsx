@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ShinyText } from "@/components/ui/shiny-text";
 import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight, ArrowLeft, Loader2, Eye, EyeOff } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import "animate.css";
@@ -507,7 +508,7 @@ const Landing = () => {
               <div ref={heroSectionRef} className="text-center space-y-6 sm:space-y-8 mb-12 sm:mb-16">
                 
                 {/* Static Heading - Always Visible */}
-                <div className="h-[180px] sm:h-[200px] md:h-[240px] lg:h-[260px] flex items-center justify-center overflow-hidden">
+                <div className="h-[240px] sm:h-[200px] md:h-[240px] lg:h-[260px] flex items-center justify-center overflow-hidden">
                   <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-normal leading-tight text-center text-white" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 400 }}>
                     <span key={currentTextIndex} className="reveal-text">
                       {words.map((word, index) => (
@@ -528,10 +529,12 @@ const Landing = () => {
                 </div>
                 
                 {/* Static Subheading - Always Visible */}
-                <div className="h-[50px] sm:h-[60px] flex items-center justify-center">
+                <div className="h-[50px] sm:h-[90px] flex items-center justify-center">
                   <div className="text-sm sm:text-sm md:text-lg lg:text-xl text-white max-w-[280px] sm:max-w-sm md:max-w-2xl mx-auto px-2 sm:px-4 text-center leading-relaxed">
                     <p className="md:whitespace-nowrap" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-                      Seamless Ticketing, Smarter Support
+                      <ShinyText speed={9}>
+                        Seamless Ticketing, Smarter Support
+                      </ShinyText>
                     </p>
                   </div>
                 </div>
