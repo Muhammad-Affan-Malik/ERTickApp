@@ -134,22 +134,48 @@
   animation: gradient 6s ease infinite;
 }
 
-/* Text Reveal Effect */
+/* Text Reveal Effect - Enhanced */
 .reveal-text {
   display: inline-block;
   position: relative;
   user-select: none;
+  overflow: hidden;
 }
 
 .reveal-word {
   display: inline-block;
   opacity: 0;
-  transition: opacity 0.6s ease-out;
-  will-change: opacity;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
 }
 
 .reveal-word.visible {
   opacity: 1;
+  transform: translateY(0);
+}
+
+/* Lenis Smooth Scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }
 
 /* Enhanced Card Animations */
@@ -346,4 +372,27 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* Image Loading Optimization */
+.img-loading {
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.img-loaded {
+  opacity: 1;
+  animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Lazy load images with blur-up effect */
+.lazy-image {
+  filter: blur(10px);
+  transition: filter 0.5s ease-out, opacity 0.5s ease-out;
+  opacity: 0.5;
+}
+
+.lazy-image.loaded {
+  filter: blur(0);
+  opacity: 1;
 }

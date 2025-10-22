@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ShinyText } from "@/components/ui/shiny-text";
-import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight, ArrowLeft, Loader2, Eye, EyeOff } from "lucide-react";
+import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight, ArrowLeft, Loader2, Eye, EyeOff, User, Lock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import "animate.css";
 import Lenis from "lenis";
@@ -42,6 +42,7 @@ const Landing = () => {
   });
   const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
   
   // Login form transition states
   const [isLoginFormVisible, setIsLoginFormVisible] = useState(false);
@@ -120,9 +121,12 @@ const Landing = () => {
     };
   }, [currentTextIndex, words.length]);
 
-  // Initialize Lenis smooth scroll
+  // Initialize Lenis smooth scroll with optimized configuration
   useEffect(() => {
-    // Create Lenis instance
+    // Add lenis class to html element for proper CSS application
+    document.documentElement.classList.add('lenis', 'lenis-smooth');
+    
+    // Create Lenis instance with optimized settings
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -132,52 +136,71 @@ const Landing = () => {
       wheelMultiplier: 1,
       touchMultiplier: 2,
       infinite: false,
+      autoResize: true,
+      syncTouch: true,
+      syncTouchLerp: 0.075,
     });
 
     lenisRef.current = lenis;
 
-    // Animation frame loop
+    // Optimized animation frame loop with RAF ID tracking
+    let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
-    // Cleanup
+    // Cleanup with proper removal of classes and RAF cancellation
     return () => {
+      cancelAnimationFrame(rafId);
       lenis.destroy();
+      document.documentElement.classList.remove('lenis', 'lenis-smooth');
     };
   }, []);
 
-  // Header scroll behavior for mobile
+  // Header scroll behavior for mobile with throttling
   useEffect(() => {
+    let ticking = false;
+    let lastKnownScrollPosition = 0;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Only apply this behavior on mobile (screen width < 768px)
-      if (window.innerWidth < 768) {
-        if (currentScrollY > lastScrollY && currentScrollY > 100) {
-          // Scrolling down and past 100px
-          setIsHeaderVisible(false);
-        } else {
-          // Scrolling up
-          setIsHeaderVisible(true);
-        }
-      } else {
-        // Always show header on desktop
-        setIsHeaderVisible(true);
+      lastKnownScrollPosition = window.scrollY;
+
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = lastKnownScrollPosition;
+          
+          // Only apply this behavior on mobile (screen width < 768px)
+          if (window.innerWidth < 768) {
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+              // Scrolling down and past 100px
+              setIsHeaderVisible(false);
+            } else if (currentScrollY < lastScrollY) {
+              // Scrolling up
+              setIsHeaderVisible(true);
+            }
+          } else {
+            // Always show header on desktop
+            if (!isHeaderVisible) setIsHeaderVisible(true);
+          }
+          
+          setLastScrollY(currentScrollY);
+          ticking = false;
+        });
+
+        ticking = true;
       }
-      
-      setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    // Passive event listener for better scrolling performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [lastScrollY]);
+  }, [lastScrollY, isHeaderVisible]);
 
   // Auto-slide carousel disabled - only changes on hover
   // useEffect(() => {
@@ -203,37 +226,64 @@ const Landing = () => {
     return () => clearInterval(highlightInterval);
   }, []);
 
-  // Scroll observer for animations
+  // Optimized scroll observer for animations with better thresholds
   useEffect(() => {
+    // Store observed elements for cleanup
+    const observedElements: Element[] = [];
+    
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const sectionName = entry.target.getAttribute('data-section');
             if (sectionName) {
-              setVisibleSections(prev => ({
-                ...prev,
-                [sectionName]: true
-              }));
+              setVisibleSections(prev => {
+                // Only update if not already visible (performance optimization)
+                if (!prev[sectionName as keyof typeof prev]) {
+                  return {
+                    ...prev,
+                    [sectionName]: true
+                  };
+                }
+                return prev;
+              });
+              
+              // Unobserve after animating to save resources
+              observer.unobserve(entry.target);
             }
           }
         });
       },
       {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        threshold: [0, 0.1, 0.2],
+        rootMargin: '-50px 0px -100px 0px',
       }
     );
 
-    // Observe all sections
-    if (highlightsRef.current) observer.observe(highlightsRef.current);
-    if (whoWeAreRef.current) observer.observe(whoWeAreRef.current);
-    if (aboutRef.current) observer.observe(aboutRef.current);
-    if (footerRef.current) observer.observe(footerRef.current);
-    if (featuresRef.current) observer.observe(featuresRef.current);
-    if (benefitsRef.current) observer.observe(benefitsRef.current);
+    // Collect and observe all sections
+    const refs = [
+      highlightsRef,
+      whoWeAreRef,
+      aboutRef,
+      footerRef,
+      featuresRef,
+      benefitsRef
+    ];
 
-    return () => observer.disconnect();
+    refs.forEach(ref => {
+      if (ref.current) {
+        observer.observe(ref.current);
+        observedElements.push(ref.current);
+      }
+    });
+
+    // Proper cleanup
+    return () => {
+      observedElements.forEach(element => {
+        observer.unobserve(element);
+      });
+      observer.disconnect();
+    };
   }, []);
 
   const highlights = [
@@ -298,6 +348,14 @@ const Landing = () => {
       image: AgentDashboard,
     },
   ];
+
+  // Image loading handler for optimized fade-in
+  const handleImageLoad = (imageSrc: string) => {
+    setImageLoaded(prev => ({
+      ...prev,
+      [imageSrc]: true
+    }));
+  };
 
   // Handle login validation
   const handleLogin = () => {
@@ -386,6 +444,30 @@ const Landing = () => {
     }, 500); // Match animation duration (0.5s)
   };
 
+  // Handle Ctrl+C to clear input fields
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && isLoginFormVisible) {
+        // Check if any input is focused
+        const activeElement = document.activeElement;
+        const isInputFocused = 
+          activeElement?.id === 'userId' || 
+          activeElement?.id === 'password';
+        
+        if (isInputFocused) {
+          e.preventDefault();
+          setUserId("");
+          setPassword("");
+          setLoginError("");
+          setHasErrorFocus(false);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLoginFormVisible]);
+
   return (
     
     <>
@@ -461,7 +543,11 @@ const Landing = () => {
             
             {/* Request a demo button */}
               <button 
-              onClick={() => handleTransition(true)}
+              onClick={() => {
+                if (!isLoginFormVisible) {
+                  handleTransition(true);
+                }
+              }}
               className="px-6 py-2 rounded-full text-sm font-normal transition-all duration-200 relative group cursor-pointer"
                 style={{ 
                   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -584,43 +670,47 @@ const Landing = () => {
                           )}
 
                           {/* Username Input */}
-                          <Input
-                            ref={userIdInputRef}
-                            id="userId"
-                            type="text"
-                            placeholder="User ID"
-                            value={userId}
-                            onChange={(e) => {
-                              setUserId(e.target.value);
-                              if (loginError) {
-                                setLoginError("");
-                                setHasErrorFocus(false);
-                              }
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                handleLogin();
-                              }
-                            }}
-                            className={`w-full text-center !py-2 sm:!py-2.5 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
-                              hasErrorFocus ? 'border-red-600' : ''
-                            } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
-                            style={{ 
-                              textAlign: 'center',
-                              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                              borderColor: hasErrorFocus ? '#dc2626' : undefined,
-                              borderWidth: hasErrorFocus ? '2px' : undefined,
-                              boxShadow: hasErrorFocus ? '0 0 0 3px rgba(220, 38, 38, 0.4), 0 0 10px rgba(220, 38, 38, 0.3)' : undefined
-                            }}
-                          />
+                          <div className="relative">
+                            <User className="absolute left-1/2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 z-10" style={{ marginLeft: '-60px' }} />
+                            <Input
+                              ref={userIdInputRef}
+                              id="userId"
+                              type="text"
+                              placeholder="User ID"
+                              value={userId}
+                              onChange={(e) => {
+                                setUserId(e.target.value);
+                                if (loginError) {
+                                  setLoginError("");
+                                  setHasErrorFocus(false);
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleLogin();
+                                }
+                              }}
+                              className={`w-full text-center !py-2 sm:!py-2.5 !px-4 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
+                                hasErrorFocus ? 'border-red-600' : ''
+                              } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
+                              style={{ 
+                                textAlign: 'center',
+                                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                borderColor: hasErrorFocus ? '#dc2626' : undefined,
+                                borderWidth: hasErrorFocus ? '2px' : undefined,
+                                boxShadow: hasErrorFocus ? '0 0 0 3px rgba(220, 38, 38, 0.4), 0 0 10px rgba(220, 38, 38, 0.3)' : undefined
+                              }}
+                            />
+                          </div>
 
                           {/* Password Input */}
                           <div className="relative">
-                          <Input
-                            id="password"
+                            <Lock className="absolute left-1/2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 z-10" style={{ marginLeft: '-65px' }} />
+                            <Input
+                              id="password"
                               type={showPassword ? "text" : "password"}
-                            placeholder="Password"
-                            value={password}
+                              placeholder="Password"
+                              value={password}
                               onChange={(e) => {
                                 setPassword(e.target.value);
                                 if (loginError) {
@@ -633,7 +723,7 @@ const Landing = () => {
                                   handleLogin();
                                 }
                               }}
-                              className={`w-full text-center !py-2 sm:!py-2.5 !pr-4 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
+                              className={`w-full text-center !py-2 sm:!py-2.5 !px-4 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
                                 hasErrorFocus ? 'border-red-600' : ''
                               } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
                               style={{ 
@@ -644,17 +734,20 @@ const Landing = () => {
                                 boxShadow: hasErrorFocus ? '0 0 0 3px rgba(220, 38, 38, 0.4), 0 0 10px rgba(220, 38, 38, 0.3)' : undefined
                               }}
                             />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
-                            >
-                              {showPassword ? (
-                                <EyeOff className="h-4 w-4" />
-                              ) : (
-                                <Eye className="h-4 w-4" />
-                              )}
-                            </button>
+                            {password && (
+                              <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-1/2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors z-10"
+                                style={{ marginRight: '-65px' }}
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </button>
+                            )}
                           </div>
 
                           {/* Buttons or Loading State */}
@@ -775,8 +868,11 @@ const Landing = () => {
                       <img 
                           key={activePreview}
                         src={activePreview} 
-                        alt="Dashboard Preview" 
-                          className="w-full h-full object-contain rounded-xl transition-all duration-700 ease-in-out animate__animated animate__fadeIn opacity-0"
+                        alt="Dashboard Preview"
+                          onLoad={() => handleImageLoad(activePreview)}
+                          className={`w-full h-full object-contain rounded-xl transition-all duration-700 ease-in-out ${
+                            imageLoaded[activePreview] ? 'img-loaded' : 'img-loading'
+                          }`}
                       />
                       </div>
                     </div>
@@ -852,7 +948,9 @@ const Landing = () => {
                               className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200 w-full"
                               style={{ backgroundColor: '#1e3a8a' }}
                             onClick={() => {
-                              handleTransition(true);
+                              if (!isLoginFormVisible) {
+                                handleTransition(true);
+                              }
                             }}
                             >
                               Get Started
@@ -870,8 +968,11 @@ const Landing = () => {
                       <img 
                           key={activePreview}
                         src={activePreview} 
-                        alt="Dashboard Preview" 
-                          className="w-full h-full object-contain rounded-xl transition-all duration-700 ease-in-out animate__animated animate__fadeIn opacity-0"
+                        alt="Dashboard Preview"
+                          onLoad={() => handleImageLoad(activePreview)}
+                          className={`w-full h-full object-contain rounded-xl transition-all duration-700 ease-in-out ${
+                            imageLoaded[activePreview] ? 'img-loaded' : 'img-loading'
+                          }`}
                       />
                         
                         {/* Decorative gradient overlay */}
@@ -944,7 +1045,9 @@ const Landing = () => {
                                 className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200"
                                 style={{ backgroundColor: '#1e3a8a' }}
                               onClick={() => {
-                                handleTransition(true);
+                                if (!isLoginFormVisible) {
+                                  handleTransition(true);
+                                }
                               }}
                               >
                                 Get Started
@@ -1042,8 +1145,10 @@ const Landing = () => {
           <Card className={`shadow-xl hover:shadow-2xl transition-all duration-500 rounded-[3rem] border-0 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`} style={{ backgroundColor: '#0B132B' }}>
             <CardContent className="p-8 md:p-12 space-y-6">
               <div className="text-center">
-                <h2 className={`text-3xl md:text-4xl font-bold text-white mb-6 transition-all duration-1000 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInDown' : 'opacity-0 translate-y-4'}`}>
-                  Who We Are
+                <h2 className={`text-3xl md:text-4xl font-bold mb-6 transition-all duration-1000 ${visibleSections.whoWeAre ? 'animate__animated animate__fadeInDown' : 'opacity-0 translate-y-4'}`}>
+                  <ShinyText speed={9}>
+                    Who We Are
+                  </ShinyText>
                 </h2>
               </div>
               
