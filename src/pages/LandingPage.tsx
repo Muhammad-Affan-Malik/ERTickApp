@@ -31,7 +31,6 @@ const Landing = () => {
   const [, setIsHovered] = useState(false);
   const [activePreview, setActivePreview] = useState(DashboardPreview);
   const [selectedOption, setSelectedOption] = useState(0); // Default to "Overview" (index 0)
-  const [isPreviewInteracted, setIsPreviewInteracted] = useState(false);
   const [visibleWords, setVisibleWords] = useState(0);
   const [visibleSections, setVisibleSections] = useState({
     highlights: false,
@@ -180,20 +179,20 @@ const Landing = () => {
     };
   }, [lastScrollY]);
 
-  // Auto-slide carousel for dashboard previews
-  useEffect(() => {
-    if (!isPreviewInteracted) {
-      const slideInterval = setInterval(() => {
-        setSelectedOption((prev) => {
-          const nextSlide = (prev + 1) % dashboardOptions.length;
-          setActivePreview(dashboardOptions[nextSlide].image);
-          return nextSlide;
-        });
-      }, 3500); // Change slide every 3.5 seconds
+  // Auto-slide carousel disabled - only changes on hover
+  // useEffect(() => {
+  //   if (!isPreviewInteracted) {
+  //     const slideInterval = setInterval(() => {
+  //       setSelectedOption((prev) => {
+  //         const nextSlide = (prev + 1) % dashboardOptions.length;
+  //         setActivePreview(dashboardOptions[nextSlide].image);
+  //         return nextSlide;
+  //       });
+  //     }, 3500); // Change slide every 3.5 seconds
 
-      return () => clearInterval(slideInterval);
-    }
-  }, [isPreviewInteracted]);
+  //     return () => clearInterval(slideInterval);
+  //   }
+  // }, [isPreviewInteracted]);
 
   // Auto-rotate highlights for mobile
   useEffect(() => {
@@ -796,7 +795,6 @@ const Landing = () => {
                               className="relative cursor-pointer"
                               onClick={() => {
                                 setSelectedOption(index);
-                                setIsPreviewInteracted(true);
                                 setActivePreview(option.image); // ensure preview updates on tap
                               }}
                               onTouchStart={() => {
@@ -854,7 +852,6 @@ const Landing = () => {
                               className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200 w-full"
                               style={{ backgroundColor: '#1e3a8a' }}
                             onClick={() => {
-                              setIsPreviewInteracted(true);
                               handleTransition(true);
                             }}
                             >
@@ -894,7 +891,6 @@ const Landing = () => {
                                 className="relative cursor-pointer"
                                 onClick={() => {
                                   setSelectedOption(index);
-                                  setIsPreviewInteracted(true);
                                 }}
                                 onMouseEnter={() => {
                                   setActivePreview(option.image);
@@ -948,7 +944,6 @@ const Landing = () => {
                                 className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200"
                                 style={{ backgroundColor: '#1e3a8a' }}
                               onClick={() => {
-                                setIsPreviewInteracted(true);
                                 handleTransition(true);
                               }}
                               >
