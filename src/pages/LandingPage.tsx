@@ -531,11 +531,11 @@ const Landing = () => {
                 {/* Static Subheading - Always Visible */}
                 <div className="h-[50px] sm:h-[90px] flex items-center justify-center">
                   <div className="text-sm sm:text-sm md:text-lg lg:text-xl text-white max-w-[280px] sm:max-w-sm md:max-w-2xl mx-auto px-2 sm:px-4 text-center leading-relaxed">
-                    <p className="md:whitespace-nowrap" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+                    <div className="md:whitespace-nowrap" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
                       <ShinyText speed={9}>
                         Seamless Ticketing, Smarter Support
                       </ShinyText>
-                    </p>
+                    </div>
                   </div>
                 </div>
 
@@ -603,11 +603,12 @@ const Landing = () => {
                                 handleLogin();
                               }
                             }}
-                            className={`w-full text-center !py-2 sm:!py-2.5 text-xs sm:text-sm rounded-full bg-white transition-all ${
+                            className={`w-full text-center !py-2 sm:!py-2.5 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
                               hasErrorFocus ? 'border-red-600' : ''
                             } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
                             style={{ 
                               textAlign: 'center',
+                              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                               borderColor: hasErrorFocus ? '#dc2626' : undefined,
                               borderWidth: hasErrorFocus ? '2px' : undefined,
                               boxShadow: hasErrorFocus ? '0 0 0 3px rgba(220, 38, 38, 0.4), 0 0 10px rgba(220, 38, 38, 0.3)' : undefined
@@ -633,12 +634,12 @@ const Landing = () => {
                                   handleLogin();
                                 }
                               }}
-                              className={`w-full text-center !py-2 sm:!py-2.5 !pr-4 text-xs sm:text-sm rounded-full bg-white transition-all ${
+                              className={`w-full text-center !py-2 sm:!py-2.5 !pr-4 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
                                 hasErrorFocus ? 'border-red-600' : ''
                               } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
                               style={{ 
                                 textAlign: 'center',
-                                fontFamily: 'monospace',
+                                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                                 borderColor: hasErrorFocus ? '#dc2626' : undefined,
                                 borderWidth: hasErrorFocus ? '2px' : undefined,
                                 boxShadow: hasErrorFocus ? '0 0 0 3px rgba(220, 38, 38, 0.4), 0 0 10px rgba(220, 38, 38, 0.3)' : undefined
@@ -768,7 +769,7 @@ const Landing = () => {
               <div className="max-w-5xl mx-auto mt-8 md:mt-16">
                 <div className="rounded-2xl p-2 sm:p-4 md:p-12">
                   {/* Mobile Layout - Stacked */}
-                  <div className="block md:hidden space-y-6">
+                  <div className="hidden md:hidden space-y-6">
                     {/* Dashboard Preview Image with Slide Indicator */}
                     <div className="relative">
                       <div className="w-full h-64 sm:h-80 rounded-xl overflow-hidden" style={{ backgroundColor: '#0B132B' }}>
@@ -778,25 +779,6 @@ const Landing = () => {
                         alt="Dashboard Preview" 
                           className="w-full h-full object-contain rounded-xl transition-all duration-700 ease-in-out animate__animated animate__fadeIn opacity-0"
                       />
-                      </div>
-                      
-                      {/* Slide Indicators */}
-                      <div className="flex justify-center gap-2 mt-4">
-                        {dashboardOptions.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              setSelectedOption(index);
-                              setActivePreview(dashboardOptions[index].image);
-                              setIsPreviewInteracted(true);
-                            }}
-                            className={`transition-all duration-300 ${
-                              selectedOption === index
-                                ? 'w-8 h-2 bg-blue-600'
-                                : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
-                            } rounded-full`}
-                          />
-                        ))}
                       </div>
                     </div>
 
@@ -977,25 +959,6 @@ const Landing = () => {
                         </div>
                       </div>
                       </div>
-                      
-                      {/* Slide Indicators for Desktop */}
-                      <div className="flex justify-center gap-2 mt-6">
-                        {dashboardOptions.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              setSelectedOption(index);
-                              setActivePreview(dashboardOptions[index].image);
-                              setIsPreviewInteracted(true);
-                            }}
-                            className={`transition-all duration-300 ${
-                              selectedOption === index
-                                ? 'w-8 h-2 bg-blue-600'
-                                : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
-                            } rounded-full`}
-                          />
-                        ))}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -1168,7 +1131,6 @@ const Landing = () => {
           <Card className={`border-border/60 shadow-xl hover:shadow-2xl transition-all duration-500 rounded-[3rem] relative overflow-hidden ${visibleSections.about ? 'animate__animated animate__fadeInUp' : 'opacity-0 translate-y-8'}`} style={{ backgroundColor: '#0B132B' }}>
             {/* Decorative circles inside card */}
             <div className="absolute top-0 left-0 w-40 h-40 bg-orange-400/20 rounded-full blur-2xl animate__animated animate__pulse animate__infinite"></div>
-            <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/20 rounded-full blur-3xl animate__animated animate__pulse animate__infinite" style={{ animationDelay: '1s' }}></div>
             
             <CardContent className="p-8 md:p-12 space-y-6 relative z-10">
               <div className="text-center">
@@ -1207,9 +1169,6 @@ const Landing = () => {
                       <Check className="w-5 h-5 text-white" />
                     </div>
                     {/* Additional decorative elements */}
-                    <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-white rounded-full flex items-center justify-center animate__animated animate__pulse animate__infinite" style={{ animationDelay: '0.5s' }}>
-                      <Zap className="w-3 h-3 text-orange-500" />
-                    </div>
                     <div className="absolute top-1/2 -right-4 w-5 h-5 bg-orange-400 rounded-full flex items-center justify-center animate__animated animate__bounce animate__infinite" style={{ animationDelay: '1s' }}>
                       <Clock className="w-3 h-3 text-white" />
                     </div>
