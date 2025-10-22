@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight, ArrowLeft, Loader2, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import "animate.css";
+import Lenis from "lenis";
+import "lenis/dist/lenis.css";
 import ERManagerLogo from "@/assets/ERManagerCSLogo.png";
 import DashboardPreview from "@/assets/DashboardPreviews/DashboardPreview.png";
 import AgentDashboard from "@/assets/DashboardPreviews/AgentDashboard.png";
@@ -53,6 +54,8 @@ const Landing = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [hasErrorFocus, setHasErrorFocus] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   // Refs for each section
   //refs for each section used 
@@ -65,6 +68,7 @@ const Landing = () => {
   const benefitsRef = useRef<HTMLDivElement>(null);
   const heroSectionRef = useRef<HTMLDivElement>(null);
   const userIdInputRef = useRef<HTMLInputElement>(null);
+  const lenisRef = useRef<Lenis | null>(null);
   
   const currentText = TEXT_LINES[currentTextIndex];
   const words = currentText.split(' ');
@@ -115,6 +119,65 @@ const Landing = () => {
       timers.forEach((id) => clearTimeout(id));
     };
   }, [currentTextIndex, words.length]);
+
+  // Initialize Lenis smooth scroll
+  useEffect(() => {
+    // Create Lenis instance
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    lenisRef.current = lenis;
+
+    // Animation frame loop
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    // Cleanup
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
+  // Header scroll behavior for mobile
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Only apply this behavior on mobile (screen width < 768px)
+      if (window.innerWidth < 768) {
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          // Scrolling down and past 100px
+          setIsHeaderVisible(false);
+        } else {
+          // Scrolling up
+          setIsHeaderVisible(true);
+        }
+      } else {
+        // Always show header on desktop
+        setIsHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [lastScrollY]);
 
   // Auto-slide carousel for dashboard previews
   useEffect(() => {
@@ -297,10 +360,12 @@ const Landing = () => {
       // Scroll to hero section if needed
       if (shouldScroll) {
         setTimeout(() => {
-          heroSectionRef.current?.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'center'
-          });
+          if (lenisRef.current && heroSectionRef.current) {
+            lenisRef.current.scrollTo(heroSectionRef.current, {
+              offset: -100,
+              duration: 1.5,
+            });
+          }
         }, 100);
       }
     } else {
@@ -331,26 +396,48 @@ const Landing = () => {
       
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
       {/* Header */}
-      <header className="border-b border-border/50 bg-card/95 sticky top-0 z-50">
+      <header className={`border-b border-border/50 bg-card/95 sticky top-0 z-50 transition-transform duration-300 ${
+        isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}>
         <nav className="container mx-auto px-6 py-2 flex justify-between items-center">
-          <div className="flex items-center gap-4 ml-7">
-            <Link to="/" className="cursor-pointer hover:opacity-80 transition-opacity duration-200">
+          {/* Mobile: Centered logo */}
+          <div className="flex md:hidden items-center justify-center flex-1">
+            <div 
+              onClick={() => window.location.reload()} 
+              className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+            >
               <img 
                 src={ERManagerLogo} 
                 alt="ERManager Consulting Services" 
                 className="h-10 w-auto object-contain"
               />
-            </Link>
+            </div>
+          </div>
+          
+          {/* Desktop: Left-aligned logo */}
+          <div className="hidden md:flex items-center gap-4 ml-7">
+            <div 
+              onClick={() => window.location.reload()} 
+              className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+            >
+              <img 
+                src={ERManagerLogo} 
+                alt="ERManager Consulting Services" 
+                className="h-10 w-auto object-contain"
+              />
+            </div>
           </div>
           
           {/* Header Links */}
           <div className="hidden md:flex items-center gap-6 mr-7">
             <button 
               onClick={() => {
-                whoWeAreRef.current?.scrollIntoView({ 
-                  behavior: 'smooth',
-                  block: 'center'
-                });
+                if (lenisRef.current && whoWeAreRef.current) {
+                  lenisRef.current.scrollTo(whoWeAreRef.current, {
+                    offset: -100,
+                    duration: 1.5,
+                  });
+                }
               }}
               className="text-gray-500 hover:text-gray-700 transition-colors duration-200 text-sm font-normal cursor-pointer"
               style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
@@ -359,10 +446,12 @@ const Landing = () => {
             </button>
             <button 
               onClick={() => {
-                footerRef.current?.scrollIntoView({ 
-                  behavior: 'smooth',
-                  block: 'start'
-                });
+                if (lenisRef.current && footerRef.current) {
+                  lenisRef.current.scrollTo(footerRef.current, {
+                    offset: 0,
+                    duration: 1.5,
+                  });
+                }
               }}
               className="text-gray-500 hover:text-gray-700 transition-colors duration-200 text-sm font-normal cursor-pointer"
               style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
@@ -371,40 +460,40 @@ const Landing = () => {
             </button>
             
             {/* Request a demo button */}
-            <button 
+              <button 
               onClick={() => handleTransition(true)}
               className="px-6 py-2 rounded-full text-sm font-normal transition-all duration-200 relative group cursor-pointer"
-              style={{ 
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                background: 'transparent',
-                color: '#4f46e5'
-              }}
-            >
-              {/* Gradient border */}
-              <div 
-                className="absolute inset-0 rounded-full border-2 transition-all duration-200"
-                style={{
-                  background: 'linear-gradient(90deg, #60a5fa, #a855f7)',
-                  mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                  maskComposite: 'xor',
-                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                  WebkitMaskComposite: 'xor',
-                  padding: '2px'
+                style={{ 
+                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  background: 'transparent',
+                  color: '#4f46e5'
                 }}
-              ></div>
-              {/* Blue background on hover */}
-              <div 
-                className="absolute inset-0 rounded-full bg-blue-600 opacity-0 transition-all duration-200 group-hover:opacity-100"
-                style={{ padding: '2px' }}
-              ></div>
-              <span className="relative z-10 transition-colors duration-200 group-hover:text-white">Get Started</span>
-            </button>
+              >
+                {/* Gradient border */}
+                <div 
+                  className="absolute inset-0 rounded-full border-2 transition-all duration-200"
+                  style={{
+                    background: 'linear-gradient(90deg, #60a5fa, #a855f7)',
+                    mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    maskComposite: 'xor',
+                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMaskComposite: 'xor',
+                    padding: '2px'
+                  }}
+                ></div>
+                {/* Blue background on hover */}
+                <div 
+                  className="absolute inset-0 rounded-full bg-blue-600 opacity-0 transition-all duration-200 group-hover:opacity-100"
+                  style={{ padding: '2px' }}
+                ></div>
+                <span className="relative z-10 transition-colors duration-200 group-hover:text-white">Get Started</span>
+              </button>
           </div>
         </nav>
       </header>
 
       {/* Main Content Card */}
-      <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24 relative">
+      <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24 relative mt-[40px] sm:mt-0">
         {/* Decorative floating elements */}
         <div className="absolute top-20 left-10 w-20 h-20 bg-blue-400/10 rounded-full blur-xl animate__animated animate__pulse animate__infinite"></div>
         <div className="absolute top-40 right-20 w-32 h-32 bg-indigo-400/10 rounded-full blur-2xl animate__animated animate__pulse animate__infinite" style={{ animationDelay: '1s' }}></div>
@@ -418,33 +507,37 @@ const Landing = () => {
               <div ref={heroSectionRef} className="text-center space-y-6 sm:space-y-8 mb-12 sm:mb-16">
                 
                 {/* Static Heading - Always Visible */}
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-normal leading-tight min-h-[200px] flex items-center justify-center text-center text-white" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 400 }}>
-                  <span key={currentTextIndex} className="reveal-text">
-                    {words.map((word, index) => (
-                      <span
-                        key={`${currentTextIndex}-${index}`}
-                        className={`reveal-word ${index < visibleWords ? 'visible' : ''}`}
-                        style={{ 
-                          transitionDelay: `${index * 0.15}s`,
-                          color: 'white'
-                        }}
-                      >
-                        {word}
-                        {index < words.length - 1 && <span>&nbsp;</span>}
-                      </span>
-                    ))}
-                  </span>
-                </h1>
+                <div className="h-[180px] sm:h-[200px] md:h-[240px] lg:h-[260px] flex items-center justify-center overflow-hidden">
+                  <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-normal leading-tight text-center text-white" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: 400 }}>
+                    <span key={currentTextIndex} className="reveal-text">
+                      {words.map((word, index) => (
+                        <span
+                          key={`${currentTextIndex}-${index}`}
+                          className={`reveal-word ${index < visibleWords ? 'visible' : ''}`}
+                          style={{ 
+                            transitionDelay: `${index * 0.15}s`,
+                            color: 'white'
+                          }}
+                        >
+                          {word}
+                          {index < words.length - 1 && <span>&nbsp;</span>}
+                        </span>
+                      ))}
+                    </span>
+                  </h1>
+                </div>
                 
                 {/* Static Subheading - Always Visible */}
-                <div className="text-xs sm:text-sm md:text-lg lg:text-xl text-white max-w-[280px] sm:max-w-sm md:max-w-2xl mx-auto px-2 sm:px-4 text-center leading-relaxed">
-                  <p className="md:whitespace-nowrap" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-                    Seamless Ticketing, Smarter Support
-                  </p>
+                <div className="h-[50px] sm:h-[60px] flex items-center justify-center">
+                  <div className="text-sm sm:text-sm md:text-lg lg:text-xl text-white max-w-[280px] sm:max-w-sm md:max-w-2xl mx-auto px-2 sm:px-4 text-center leading-relaxed">
+                    <p className="md:whitespace-nowrap" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+                      Seamless Ticketing, Smarter Support
+                    </p>
+                  </div>
                 </div>
 
                 {/* Transition Area - Only Button/Form Animates */}
-                <div className="pt-4 relative min-h-[200px] flex items-center justify-center">
+                <div className="pt-4 relative h-[200px] sm:h-[220px] md:h-[260px] flex items-center justify-center">
                   
                   {/* Enter Dashboard Button */}
                   {!isLoginFormVisible && (
@@ -458,7 +551,7 @@ const Landing = () => {
                     >
                       <Button
                         onClick={() => handleTransition(false)}
-                        className="group text-white !py-6 !px-8 text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                        className="group text-white !py-4 !px-6 sm:!py-6 sm:!px-8 text-sm sm:text-base font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
                         style={{ backgroundColor: '#1e3a8a' }}
                       >
                         Enter Dashboard
@@ -507,7 +600,7 @@ const Landing = () => {
                                 handleLogin();
                               }
                             }}
-                            className={`w-full text-center !py-2.5 text-sm rounded-full bg-white transition-all ${
+                            className={`w-full text-center !py-2 sm:!py-2.5 text-xs sm:text-sm rounded-full bg-white transition-all ${
                               hasErrorFocus ? 'border-red-600' : ''
                             } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
                             style={{ 
@@ -520,11 +613,11 @@ const Landing = () => {
 
                           {/* Password Input */}
                           <div className="relative">
-                            <Input
-                              id="password"
+                          <Input
+                            id="password"
                               type={showPassword ? "text" : "password"}
-                              placeholder="Password"
-                              value={password}
+                            placeholder="Password"
+                            value={password}
                               onChange={(e) => {
                                 setPassword(e.target.value);
                                 if (loginError) {
@@ -537,7 +630,7 @@ const Landing = () => {
                                   handleLogin();
                                 }
                               }}
-                              className={`w-full text-center !py-2.5 !pr-4 text-sm rounded-full bg-white transition-all ${
+                              className={`w-full text-center !py-2 sm:!py-2.5 !pr-4 text-xs sm:text-sm rounded-full bg-white transition-all ${
                                 hasErrorFocus ? 'border-red-600' : ''
                               } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
                               style={{ 
@@ -565,26 +658,26 @@ const Landing = () => {
                           <div className="pt-2 relative">
                             {!isLoading ? (
                               <div className="flex gap-2 animate__animated animate__fadeIn">
-                                <Button
+                            <Button
                                   onClick={() => handleTransition(false)}
-                                  className="flex-1 text-gray-700 !py-2.5 text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 bg-gray-100 hover:bg-gray-200"
-                                >
-                                  <ArrowLeft className="h-4 w-4" />
-                                  Go Back
-                                </Button>
-                                
-                                <Button
+                              className="flex-1 text-gray-700 !py-2 sm:!py-2.5 text-xs sm:text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 bg-gray-100 hover:bg-gray-200"
+                            >
+                              <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+                              Go Back
+                            </Button>
+                            
+                              <Button
                                   onClick={handleLogin}
-                                  className="flex-1 text-white !py-2.5 text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300"
-                                  style={{ backgroundColor: '#1e3a8a' }}
-                                >
-                                  Login
-                                  <ArrowRight className="h-4 w-4" />
-                                </Button>
-                              </div>
+                                  className="flex-1 text-white !py-2 sm:!py-2.5 text-xs sm:text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300"
+                                style={{ backgroundColor: '#1e3a8a' }}
+                              >
+                                Login
+                                <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                          </div>
                             ) : (
                               <div className="flex justify-center py-2 animate__animated animate__zoomIn">
-                                <Loader2 className="h-10 w-10 text-white animate-spin" />
+                                <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 text-white animate-spin" />
                               </div>
                             )}
                           </div>
@@ -598,7 +691,7 @@ const Landing = () => {
               </div>
 
               {/* System Highlights */}
-              <div className="max-w-5xl mx-auto -mt-20" ref={highlightsRef} data-section="highlights">
+              <div className="max-w-5xl mx-auto -mt-5" ref={highlightsRef} data-section="highlights">
                 <div className={`transition-all duration-1000 ${visibleSections.highlights ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ backgroundColor: '#0B132B', padding: '2rem', borderRadius: '1.5rem' }}>
                   {/* Desktop: Elegant horizontal layout */}
                   <div className="hidden md:flex md:flex-row items-center justify-center gap-8 md:gap-12">
@@ -772,17 +865,17 @@ const Landing = () => {
                         </div>
 
                         <div className="text-center">
-                          <Button 
-                            className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200 w-full"
-                            style={{ backgroundColor: '#1e3a8a' }}
+                            <Button 
+                              className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200 w-full"
+                              style={{ backgroundColor: '#1e3a8a' }}
                             onClick={() => {
                               setIsPreviewInteracted(true);
                               handleTransition(true);
                             }}
-                          >
-                            Get Started
-                            <span className="ml-1">→</span>
-                          </Button>
+                            >
+                              Get Started
+                              <span className="ml-1">→</span>
+                            </Button>
                         </div>
                       </div>
                     </div>
@@ -866,17 +959,17 @@ const Landing = () => {
                           </div>
 
                           <div className="text-center">
-                            <Button 
-                              className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200"
-                              style={{ backgroundColor: '#1e3a8a' }}
+                              <Button 
+                                className="text-white px-6 py-2 text-xs font-medium rounded-full shadow-lg transition-all duration-200"
+                                style={{ backgroundColor: '#1e3a8a' }}
                               onClick={() => {
                                 setIsPreviewInteracted(true);
                                 handleTransition(true);
                               }}
-                            >
-                              Get Started
-                              <span className="ml-1">→</span>
-                            </Button>
+                              >
+                                Get Started
+                                <span className="ml-1">→</span>
+                              </Button>
                           </div>
                         </div>
                       </div>
