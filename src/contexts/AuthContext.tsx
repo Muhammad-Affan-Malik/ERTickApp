@@ -51,9 +51,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Simulate API call with a delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Basic validation (replace with actual API call in production)
-    // For now, accept any non-empty username and password
-    if (username.trim() && password.trim()) {
+    // Hardcoded credentials validation
+    const VALID_USER_ID = "1111";
+    const VALID_PASSWORD = "1111";
+    
+    if (username === VALID_USER_ID && password === VALID_PASSWORD) {
       // Successful login
       const userData = { username: username.trim() };
       

@@ -95,6 +95,8 @@ interface LoginSectionProps {
         setTimeout(() => {
           setIsUserIdShaking(false);
           setIsPasswordShaking(false);
+          // Focus on User ID field after shake animation
+          userIdInputRef.current?.focus();
         }, 500);
       }
     } catch (err) {
@@ -107,6 +109,8 @@ interface LoginSectionProps {
       setTimeout(() => {
         setIsUserIdShaking(false);
         setIsPasswordShaking(false);
+        // Focus on User ID field after shake animation
+        userIdInputRef.current?.focus();
       }, 500);
     } finally {
       setIsLoading(false);
@@ -188,7 +192,12 @@ interface LoginSectionProps {
             placeholder="Password"
             value={password}
             onChange={(e) => handleInputChange(setPassword, e.target.value, 'password')}
-            onKeyDown={(e) => handleKeyDown(e, loginButtonRef)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleLogin();
+              }
+            }}
             className={`w-full text-center !py-2 sm:!py-2.5 !px-4 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
               hasPasswordErrorFocus ? 'border-red-600' : ''
             }`}
