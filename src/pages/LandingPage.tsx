@@ -808,6 +808,7 @@ const Landing = () => {
                                 className="relative cursor-pointer"
                                 onClick={() => {
                                   setSelectedOption(index);
+                                  setActivePreview(option.image);
                                 }}
                                 onMouseEnter={() => {
                                   setActivePreview(option.image);

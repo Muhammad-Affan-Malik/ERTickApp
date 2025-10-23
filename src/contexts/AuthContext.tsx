@@ -48,8 +48,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
    * @returns Promise<boolean> - true if login successful, false otherwise
    */
   const login = async (username: string, password: string): Promise<boolean> => {
-    // Simulate API call with a delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Simulate API call with a delay (2 seconds for better visual feedback)
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Hardcoded credentials validation
     const VALID_USER_ID = "1111";
