@@ -1,0 +1,116 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "React 19.1.1",
+    "Vite 7.1.7",
+    "React Router DOM 7.9.4",
+    "TailwindCSS 4.1.14",
+    "Lucide React (Icons)",
+    "Animate.css",
+    "Lenis (Smooth Scroll)",
+    "shadcn/ui Components"
+  ],
+  "features": [
+    {
+      "name": "Landing Page",
+      "description": "Main landing page with animated hero section, dashboard preview carousel, feature showcase cards, company information sections, smooth scrolling, and inline login form transition. Includes responsive mobile/desktop layouts with Lenis smooth scroll integration.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Login Page",
+      "description": "Dedicated login page with comprehensive form validation including user ID/email validation, password complexity requirements, error handling, loading states, and keyboard shortcuts (Ctrl+C to clear form). Includes success/error messaging.",
+      "files": ["src/pages/LoginPage.tsx"]
+    },
+    {
+      "name": "Navigation & Routing",
+      "description": "React Router DOM implementation with routes for landing page (/) and login page (/login).",
+      "files": ["src/App.tsx"]
+    },
+    {
+      "name": "Button Component",
+      "description": "Reusable button UI component with variant support, size options, and customizable styling using class-variance-authority and Radix UI slot.",
+      "files": ["src/components/ui/button.tsx"]
+    },
+    {
+      "name": "Card Component",
+      "description": "Reusable card container component with header, title, description, content, and footer sub-components for structured content display.",
+      "files": ["src/components/ui/card.tsx"]
+    },
+    {
+      "name": "Input Component",
+      "description": "Reusable text input field component with customizable styling and accessibility features.",
+      "files": ["src/components/ui/input.tsx"]
+    },
+    {
+      "name": "Shiny Text Component",
+      "description": "Animated text component with gradient shiny effect for eye-catching headings and CTAs.",
+      "files": ["src/components/ui/shiny-text.tsx"]
+    },
+    {
+      "name": "Responsive Header",
+      "description": "Sticky navigation header with mobile and desktop layouts, scroll-based hide/show behavior on mobile, logo click to reload, navigation buttons with smooth scroll to sections.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Hero Section with Text Animation",
+      "description": "Animated hero section with word-by-word text reveal animation cycling through multiple promotional messages, shiny text subheading, and login form transition.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Login Form Transition",
+      "description": "Smooth animated transition between 'Enter Dashboard' button and inline login form on landing page with fade/zoom animations, form validation, and error handling.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Dashboard Preview Carousel",
+      "description": "Interactive dashboard preview system with 9 different dashboard options (Overview, Attendance, Incident Management, Leave Requests, Requirements, Ticket Chat, Ticket Status, Time Tracking, Agent Dashboard) that change on hover/click.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Feature Showcase Cards",
+      "description": "Grid layout of three feature cards (In-Depth Expertise, Customized Strategic Solutions, Data-Driven Insights) with gradient backgrounds, hover effects, and external links to company website.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Scroll-triggered Animations",
+      "description": "Intersection Observer implementation for animating sections as they scroll into view, including highlights, features, benefits, about, and footer sections.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Mobile Highlights Carousel",
+      "description": "Auto-rotating carousel displaying system highlights (Real-time updates, Simplified workflow, Insightful reports) on mobile devices with smooth transitions.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Benefits Section",
+      "description": "Asymmetric grid layout showcasing ERManager Implementation & Support and ERTickAPP with alternating color schemes (navy, yellow, orange) and staggered animations.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "About Section",
+      "description": "Company information section with decorative animated elements, two-column layout on desktop, SAP integration badges, and animated icon graphics.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Footer with Contact Information",
+      "description": "Comprehensive footer with company logo, tagline, contact details (website, phone, head office address, business hours), and rounded-top design.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Smooth Scroll Integration",
+      "description": "Lenis smooth scroll library integration with optimized configuration for smooth page scrolling, gesture support, and programmatic scrolling to sections.",
+      "files": ["src/pages/LandingPage.tsx"]
+    },
+    {
+      "name": "Form Validation System",
+      "description": "Comprehensive client-side validation for login forms including email/username format validation, password complexity requirements (uppercase, lowercase, numbers, special characters), length constraints, and real-time error feedback.",
+      "files": ["src/pages/LoginPage.tsx"]
+    },
+    {
+      "name": "Image Lazy Loading",
+      "description": "Image loading state management with fade-in transitions for dashboard preview images to improve perceived performance.",
+      "files": ["src/pages/LandingPage.tsx"]
+    }
+  ]
+}
+

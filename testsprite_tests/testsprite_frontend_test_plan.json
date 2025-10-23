@@ -1,0 +1,458 @@
+[
+  {
+    "id": "TC001",
+    "title": "Animated Hero Section Word-by-Word Reveal",
+    "description": "Verify the hero section cycles through multiple promotional messages with smooth word-by-word reveal animations and shiny gradient text effects.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the ERTickAPP Portal Landing Page"
+      },
+      {
+        "type": "assertion",
+        "description": "Observe the hero text animates word-by-word with no jank or glitches"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the promotional messages cycle continuously and smoothly"
+      },
+      {
+        "type": "assertion",
+        "description": "Check the shiny gradient text effect is visible and consistent"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Dashboard Preview Carousel Interactions",
+    "description": "Ensure the dashboard preview system updates preview images on hover and click with fade-in lazy loading transitions for all nine dashboard modules.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the landing page and locate the dashboard preview carousel"
+      },
+      {
+        "type": "action",
+        "description": "Hover over each of the nine dashboard options one by one"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the preview image updates to the correct dashboard view with a fade-in transition"
+      },
+      {
+        "type": "action",
+        "description": "Click each dashboard option"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the preview image updates accordingly with visual feedback"
+      },
+      {
+        "type": "assertion",
+        "description": "Check images lazy load and do not cause performance delays"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Login Form Transition and Inline Validation",
+    "description": "Validate the smooth fade/zoom transition when clicking 'Enter Dashboard' and the comprehensive inline login form validation including visual feedback and error messages.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Click the 'Enter Dashboard' button on the landing page"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the button transitions to the inline login form with smooth fade and zoom animation"
+      },
+      {
+        "type": "action",
+        "description": "Input invalid user ID/email and observe validation feedback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify real-time error messages appear for incorrect format"
+      },
+      {
+        "type": "action",
+        "description": "Input password that violates complexity rules"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify password complexity violations are indicated with clear error messages"
+      },
+      {
+        "type": "action",
+        "description": "Clear inputs and check error messages disappear"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Login Keyboard Shortcuts Handling",
+    "description": "Test keyboard shortcuts in the login form including Ctrl+C to clear input fields and other relevant shortcuts for accessibility.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Focus on a login input field"
+      },
+      {
+        "type": "action",
+        "description": "Enter text into the input field"
+      },
+      {
+        "type": "action",
+        "description": "Press Ctrl+C key combination"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the input field is cleared immediately"
+      },
+      {
+        "type": "action",
+        "description": "Test other keyboard navigation keys (Tab, Shift+Tab) to move between inputs"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm keyboard focus moves correctly and fields are accessible"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Login Form Submission and Error Handling",
+    "description": "Verify the login form correctly handles submissions with loading state, success and error messages upon invalid or valid credentials.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Fill login form with invalid credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Check for loading state display"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appropriate error message is shown after failed login"
+      },
+      {
+        "type": "action",
+        "description": "Fill login form with valid credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm loading state and successful login transition occur"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Responsive Header Navigation Behavior",
+    "description": "Test header navigation responsiveness: mobile header hides/shows on scroll, desktop header remains persistent, and navigation buttons scroll smoothly to page sections.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access landing page on desktop viewport"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify header remains sticky and visible during scrolling"
+      },
+      {
+        "type": "action",
+        "description": "Click header navigation buttons"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm smooth scroll to corresponding sections"
+      },
+      {
+        "type": "action",
+        "description": "Access landing page on mobile viewport"
+      },
+      {
+        "type": "action",
+        "description": "Scroll down and observe header hides"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify header hides on downward scroll and reappears on upward scroll"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Scroll-triggered Animations Execution and Performance",
+    "description": "Validate that scroll-triggered animations using Intersection Observer activate correctly for highlights, features, benefits, about, and footer sections as they come into view without jank or excessive CPU usage.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Scroll vertically through the entire landing page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify each major section animates upon entering viewport"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm animations do not repeat unnecessarily once triggered"
+      },
+      {
+        "type": "assertion",
+        "description": "Observe smooth animation transitions and check for no performance degradation"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Mobile Highlights Carousel Auto Rotation and Interaction",
+    "description": "Test the mobile-optimized highlights carousel for auto-rotation timing, smooth transition effects, and manual swipe/tap interactions.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load landing page on a mobile device or mobile viewport"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm highlights carousel auto-rotates through benefit items at specified intervals"
+      },
+      {
+        "type": "action",
+        "description": "Manually swipe or tap on carousel controls"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify smooth transitions and immediate response to user control"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Benefits Section Layout and Animation",
+    "description": "Verify the asymmetric layout with alternating color schemes for benefits section, including staggered entrance animations and visual correctness across screen sizes.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the benefits section on desktop and mobile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify color schemes alternate between navy, yellow, and orange as per design"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm grid asymmetry and content alignment meet design specifications"
+      },
+      {
+        "type": "assertion",
+        "description": "Check staggered animation triggers correctly when section enters viewport"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "About Section Content and Animated Elements",
+    "description": "Check the about section includes company information, SAP integration badges, animated decorative icons, correct two-column layout on desktop, and accessibility features.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the about section on desktop viewport"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify two-column layout is correctly displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm SAP integration badges are visible and correctly labeled"
+      },
+      {
+        "type": "assertion",
+        "description": "Observe animated decorative icons for smooth motion and no glitches"
+      },
+      {
+        "type": "assertion",
+        "description": "Check semantic HTML and ARIA attributes for accessibility compliance"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Footer Information Display and Styling",
+    "description": "Ensure footer displays company logo, tagline, contact information, and business hours with correct content, styling, and rounded-top design responsive on all screen sizes.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Scroll to footer on desktop and mobile devices"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify company logo and tagline are present and correctly styled"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that website, phone, head office address, and hours of operation are accurate and visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm footer has rounded-top design as per UI specifications"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Smooth Scrolling and Lenis Library Integration",
+    "description": "Validate the Lenis smooth scroll library provides buttery smooth scrolling experience with appropriate gesture support and programmatic scrolling on all devices and browsers.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate landing page and perform manual scroll with mouse, trackpad, and touch devices"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm smooth scroll animation with no jitters or abrupt jumps"
+      },
+      {
+        "type": "action",
+        "description": "Use header navigation buttons to programmatically scroll to sections"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify smooth scroll triggers correctly and target sections are accurately reached"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Client-side Login Form Validation Rules",
+    "description": "Test client-side validation for login form enforcing user ID/email format, password complexity (uppercase, lowercase, digit, special character), length constraints, and real-time error feedback.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Enter various invalid user IDs/emails including empty, malformed, and boundary cases in login input"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appropriate error states and messages appear in real-time"
+      },
+      {
+        "type": "action",
+        "description": "Enter passwords missing one or more complexity requirements (e.g., no uppercase, no digit, too short)"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm validation errors display for each missing criteria"
+      },
+      {
+        "type": "action",
+        "description": "Enter a password fulfilling all complexity and length requirements"
+      },
+      {
+        "type": "assertion",
+        "description": "Check validation passes and error messages clear"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Image Lazy Loading and Fade-in Transition",
+    "description": "Verify all dashboard preview images and other critical images lazy load correctly with fade-in transitions to improve perceived performance and reduce initial load.",
+    "category": "performance",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load the landing page with network throttling enabled to simulate slow connection"
+      },
+      {
+        "type": "assertion",
+        "description": "Observe images load lazily only when about to enter viewport"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm images fade in smoothly upon loading with no pop-in or flicker"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Accessibility Compliance across UI Components and Forms",
+    "description": "Audit the landing page for semantic HTML usage, keyboard navigation support, and ARIA attributes on input fields, error messages, and navigation elements to meet accessibility standards.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate the page using keyboard only: Tab, Shift+Tab, Enter, and arrow keys"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify logical focus order and visible focus indicators"
+      },
+      {
+        "type": "action",
+        "description": "Use screen reader tools to inspect ARIA labels and roles on form inputs, error messages, and navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm all interactive elements have appropriate labels and live regions where applicable"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Performance Optimization under User Interaction",
+    "description": "Ensure throttled scroll events, unobserving after animation triggers, and lazy loading reduce CPU usage and prevent memory leaks during extended user sessions.",
+    "category": "performance",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Continuously scroll through the landing page multiple times over extended period"
+      },
+      {
+        "type": "assertion",
+        "description": "Monitor the CPU usage to verify no spikes or degradation due to scroll event handling"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that once scroll-triggered animations have fired, observers are disconnected as designed"
+      }
+    ]
+  }
+]

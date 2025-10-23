@@ -194,11 +194,21 @@ const Landing = () => {
       }
     };
 
+    // Handle window resize to ensure header visibility on desktop
+    const handleResize = () => {
+      // If switching to desktop, always show header
+      if (window.innerWidth >= 768) {
+        setIsHeaderVisible(true);
+      }
+    };
+
     // Passive event listener for better scrolling performance
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize);
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
     };
   }, [lastScrollY, isHeaderVisible]);
 
@@ -373,13 +383,18 @@ const Landing = () => {
       return;
     }
 
-    // Validate credentials (you can replace this with actual authentication logic)
-    // For demo purposes, let's check for specific credentials
-    // Replace this with your actual validation logic
-    const isValidCredentials = userId === "admin" && password === "password"; // Replace with your actual validation
-    
-    if (!isValidCredentials) {
-      setLoginError("Invalid user ID or password");
+    // Basic validation for demo purposes
+    // Check minimum length requirements
+    if (userId.trim().length < 3) {
+      setLoginError("User ID must be at least 3 characters");
+      setIsShaking(true);
+      setHasErrorFocus(true);
+      setTimeout(() => setIsShaking(false), 500);
+      return;
+    }
+
+    if (password.length < 6) {
+      setLoginError("Password must be at least 6 characters");
       setIsShaking(true);
       setHasErrorFocus(true);
       setTimeout(() => setIsShaking(false), 500);
@@ -392,9 +407,9 @@ const Landing = () => {
     
     // Simulate API call - replace with your actual login logic
     setTimeout(() => {
-      // Add your successful login logic here (e.g., redirect, set auth token, etc.)
-      setIsLoading(false);
-      // Example: window.location.href = '/dashboard';
+      // For demo: redirect to the dedicated login page
+      // In production, this would authenticate and redirect to dashboard
+      window.location.href = '/login';
     }, 2000);
   };
 
@@ -670,7 +685,7 @@ const Landing = () => {
                           )}
 
                           {/* Username Input */}
-                          <div className="relative">
+                          <div className={`relative ${isShaking ? 'animate__animated animate__shakeX' : ''}`}>
                             <User className="absolute left-1/2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 z-10" style={{ marginLeft: '-60px' }} />
                             <Input
                               ref={userIdInputRef}
@@ -692,7 +707,7 @@ const Landing = () => {
                               }}
                               className={`w-full text-center !py-2 sm:!py-2.5 !px-4 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
                                 hasErrorFocus ? 'border-red-600' : ''
-                              } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
+                              }`}
                               style={{ 
                                 textAlign: 'center',
                                 fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -704,7 +719,7 @@ const Landing = () => {
                           </div>
 
                           {/* Password Input */}
-                          <div className="relative">
+                          <div className={`relative ${isShaking ? 'animate__animated animate__shakeX' : ''}`}>
                             <Lock className="absolute left-1/2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 z-10" style={{ marginLeft: '-65px' }} />
                             <Input
                               id="password"
@@ -725,7 +740,7 @@ const Landing = () => {
                               }}
                               className={`w-full text-center !py-2 sm:!py-2.5 !px-4 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
                                 hasErrorFocus ? 'border-red-600' : ''
-                              } ${isShaking ? 'animate__animated animate__shakeX' : ''}`}
+                              }`}
                               style={{ 
                                 textAlign: 'center',
                                 fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
