@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { ShinyText } from "@/components/ui/shiny-text";
-import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight, ArrowLeft, Loader2, Eye, EyeOff, User, Lock } from "lucide-react";
+import LoginSection from "@/components/auth/LoginSection";
+import { CheckCircle2, Clock, Zap, BarChart3, Users, Calendar, AlertTriangle, UserCheck, FileText, MessageSquare, CheckCircle, Timer, Check, ArrowRight } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import "animate.css";
 import Lenis from "lenis";
@@ -48,13 +48,6 @@ const Landing = () => {
   const [isLoginFormVisible, setIsLoginFormVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationDirection, setAnimationDirection] = useState<'forward' | 'backward'>('forward');
-  const [userId, setUserId] = useState("");
-  const [password, setPassword] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [isShaking, setIsShaking] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [hasErrorFocus, setHasErrorFocus] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -68,7 +61,6 @@ const Landing = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const benefitsRef = useRef<HTMLDivElement>(null);
   const heroSectionRef = useRef<HTMLDivElement>(null);
-  const userIdInputRef = useRef<HTMLInputElement>(null);
   const lenisRef = useRef<Lenis | null>(null);
   
   const currentText = TEXT_LINES[currentTextIndex];
@@ -367,64 +359,21 @@ const Landing = () => {
     }));
   };
 
-  // Handle login validation
-  const handleLogin = () => {
-    // Reset error state
-    setLoginError("");
-    setIsShaking(false);
-    setHasErrorFocus(false);
-
-    // Check if fields are empty
-    if (!userId.trim() || !password.trim()) {
-      setLoginError("Fields are required");
-      setIsShaking(true);
-      setHasErrorFocus(true);
-      setTimeout(() => setIsShaking(false), 500);
-      return;
-    }
-
-    // Basic validation for demo purposes
-    // Check minimum length requirements
-    if (userId.trim().length < 3) {
-      setLoginError("User ID must be at least 3 characters");
-      setIsShaking(true);
-      setHasErrorFocus(true);
-      setTimeout(() => setIsShaking(false), 500);
-      return;
-    }
-
-    if (password.length < 6) {
-      setLoginError("Password must be at least 6 characters");
-      setIsShaking(true);
-      setHasErrorFocus(true);
-      setTimeout(() => setIsShaking(false), 500);
-      return;
-    }
-
-    // If validation passes, show loading state
-    setIsLoading(true);
-    console.log('Login successful', { userId, password });
-    
-    // Simulate API call - replace with your actual login logic
-    setTimeout(() => {
-      // For demo: redirect to the dedicated login page
-      // In production, this would authenticate and redirect to dashboard
-      window.location.href = '/login';
-    }, 2000);
+  /**
+   * Handle going back from login form to button view
+   */
+  const handleGoBack = () => {
+    handleTransition(false);
   };
 
-  // Transition handler for smooth animation between button and form
+  /**
+   * Transition handler for smooth animation between button and form
+   * @param shouldScroll - Whether to scroll to hero section when showing form
+   */
   const handleTransition = (shouldScroll: boolean = false) => {
     if (isAnimating) return; // Prevent multiple clicks during animation
     
     setIsAnimating(true);
-    
-    // Clear errors and loading state when transitioning
-    setLoginError("");
-    setIsShaking(false);
-    setIsLoading(false);
-    setShowPassword(false);
-    setHasErrorFocus(false);
     
     // Set animation direction based on current state
     if (!isLoginFormVisible) {
@@ -449,39 +398,9 @@ const Landing = () => {
     setTimeout(() => {
       setIsLoginFormVisible(!isLoginFormVisible);
       setIsAnimating(false);
-      
-      // Focus on username input after form is visible
-      if (!isLoginFormVisible && shouldScroll) {
-        setTimeout(() => {
-          userIdInputRef.current?.focus();
-        }, 600); // Wait for scroll and animation to complete
-      }
     }, 500); // Match animation duration (0.5s)
   };
 
-  // Handle Ctrl+C to clear input fields
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && isLoginFormVisible) {
-        // Check if any input is focused
-        const activeElement = document.activeElement;
-        const isInputFocused = 
-          activeElement?.id === 'userId' || 
-          activeElement?.id === 'password';
-        
-        if (isInputFocused) {
-          e.preventDefault();
-          setUserId("");
-          setPassword("");
-          setLoginError("");
-          setHasErrorFocus(false);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isLoginFormVisible]);
 
   return (
     
@@ -675,125 +594,7 @@ const Landing = () => {
                       }`}
                       style={{ animationDuration: '0.5s' }}
                     >
-                      <div className="w-full max-w-xs mx-auto px-4">
-                        <div className="space-y-3">
-                          {/* Error Message */}
-                          {loginError && (
-                            <div className="text-center">
-                              <p className="text-white text-sm font-medium">{loginError}</p>
-                            </div>
-                          )}
-
-                          {/* Username Input */}
-                          <div className={`relative ${isShaking ? 'animate__animated animate__shakeX' : ''}`}>
-                            <User className="absolute left-1/2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 z-10" style={{ marginLeft: '-60px' }} />
-                            <Input
-                              ref={userIdInputRef}
-                              id="userId"
-                              type="text"
-                              placeholder="User ID"
-                              value={userId}
-                              onChange={(e) => {
-                                setUserId(e.target.value);
-                                if (loginError) {
-                                  setLoginError("");
-                                  setHasErrorFocus(false);
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  handleLogin();
-                                }
-                              }}
-                              className={`w-full text-center !py-2 sm:!py-2.5 !px-4 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
-                                hasErrorFocus ? 'border-red-600' : ''
-                              }`}
-                              style={{ 
-                                textAlign: 'center',
-                                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                                borderColor: hasErrorFocus ? '#dc2626' : undefined,
-                                borderWidth: hasErrorFocus ? '2px' : undefined,
-                                boxShadow: hasErrorFocus ? '0 0 0 3px rgba(220, 38, 38, 0.4), 0 0 10px rgba(220, 38, 38, 0.3)' : undefined
-                              }}
-                            />
-                          </div>
-
-                          {/* Password Input */}
-                          <div className={`relative ${isShaking ? 'animate__animated animate__shakeX' : ''}`}>
-                            <Lock className="absolute left-1/2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 z-10" style={{ marginLeft: '-65px' }} />
-                            <Input
-                              id="password"
-                              type={showPassword ? "text" : "password"}
-                              placeholder="Password"
-                              value={password}
-                              onChange={(e) => {
-                                setPassword(e.target.value);
-                                if (loginError) {
-                                  setLoginError("");
-                                  setHasErrorFocus(false);
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  handleLogin();
-                                }
-                              }}
-                              className={`w-full text-center !py-2 sm:!py-2.5 !px-4 text-xs sm:text-sm font-normal rounded-full bg-white transition-all ${
-                                hasErrorFocus ? 'border-red-600' : ''
-                              }`}
-                              style={{ 
-                                textAlign: 'center',
-                                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                                borderColor: hasErrorFocus ? '#dc2626' : undefined,
-                                borderWidth: hasErrorFocus ? '2px' : undefined,
-                                boxShadow: hasErrorFocus ? '0 0 0 3px rgba(220, 38, 38, 0.4), 0 0 10px rgba(220, 38, 38, 0.3)' : undefined
-                              }}
-                            />
-                            {password && (
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-1/2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors z-10"
-                                style={{ marginRight: '-65px' }}
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </button>
-                            )}
-                          </div>
-
-                          {/* Buttons or Loading State */}
-                          <div className="pt-2 relative">
-                            {!isLoading ? (
-                              <div className="flex gap-2 animate__animated animate__fadeIn">
-                            <Button
-                                  onClick={() => handleTransition(false)}
-                              className="flex-1 text-gray-700 !py-2 sm:!py-2.5 text-xs sm:text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 bg-gray-100 hover:bg-gray-200"
-                            >
-                              <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-                              Go Back
-                            </Button>
-                            
-                              <Button
-                                  onClick={handleLogin}
-                                  className="flex-1 text-white !py-2 sm:!py-2.5 text-xs sm:text-sm font-normal rounded-full inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300"
-                                style={{ backgroundColor: '#1e3a8a' }}
-                              >
-                                Login
-                                <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
-                              </Button>
-                          </div>
-                            ) : (
-                              <div className="flex justify-center py-2 animate__animated animate__zoomIn">
-                                <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 text-white animate-spin" />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                      <LoginSection onGoBack={handleGoBack} />
                     </div>
                   )}
 
