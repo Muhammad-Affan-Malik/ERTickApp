@@ -19,8 +19,7 @@ interface LoginSectionProps {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [hasUserIdErrorFocus, setHasUserIdErrorFocus] = useState(false);
-  const [hasPasswordErrorFocus, setHasPasswordErrorFocus] = useState(false);
-
+  const [hasPasswordErrorFocus, setHasPasswordErrorFocus] = useState(false)
   const userIdInputRef = useRef<HTMLInputElement | null>(null);
   const passwordInputRef = useRef<HTMLInputElement | null>(null);
   const loginButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -50,9 +49,18 @@ interface LoginSectionProps {
     const isUserIdEmpty = !userId.trim();
     const isPasswordEmpty = !password.trim();
 
-    // Check if both fields are empty
-    if (isUserIdEmpty && isPasswordEmpty) {
-      setLoginError("Please enter your User ID and Password");
+    // Check if either or both fields are empty - shake both fields
+    if (isUserIdEmpty || isPasswordEmpty) {
+      let errorMessage = "";
+      if (isUserIdEmpty && isPasswordEmpty) {
+        errorMessage = "Please enter your User ID and Password";
+      } else if (isUserIdEmpty) {
+        errorMessage = "Please enter your User ID";
+      } else {
+        errorMessage = "Please enter your Password";
+      }
+      
+      setLoginError(errorMessage);
       setIsUserIdShaking(true);
       setIsPasswordShaking(true);
       setHasUserIdErrorFocus(true);
@@ -61,24 +69,6 @@ interface LoginSectionProps {
         setIsUserIdShaking(false);
         setIsPasswordShaking(false);
       }, 500);
-      return;
-    }
-
-    // Check if only username is empty
-    if (isUserIdEmpty) {
-      setLoginError("Please enter your User ID");
-      setIsUserIdShaking(true);
-      setHasUserIdErrorFocus(true);
-      setTimeout(() => setIsUserIdShaking(false), 500);
-      return;
-    }
-
-    // Check if only password is empty
-    if (isPasswordEmpty) {
-      setLoginError("Please enter your Password");
-      setIsPasswordShaking(true);
-      setHasPasswordErrorFocus(true);
-      setTimeout(() => setIsPasswordShaking(false), 500);
       return;
     }
 
